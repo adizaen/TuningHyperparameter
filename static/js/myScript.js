@@ -33,12 +33,14 @@ setInterval(function() {
 
 function DatasetAccepted() {
     $('#table-header').addClass('bg-success');
+    $('#btn-check-dataset').addClass('hide');
     $('#btn-try-again').hide();
     $('#btn-tuning-dataset').show();
 }
 
 function DatasetNotAccepted() {
     $('#table-header').addClass('bg-danger');
+    $('#btn-check-dataset').addClass('hide');
     $('#table-header').addClass('text-white');
     $('#btn-try-again').show();
     $('#btn-tuning-dataset').hide();
@@ -85,7 +87,9 @@ Dropzone.options.myAwesomeDropzone = {
                     $('#target').html(': ' + target);
                     $('#data_kosong').html(': ' + dataKosong + ' Data');
 
-                    if (statusDataset == 0) {
+                    console.log(statusDataset);
+
+                    if (statusDataset == 1) {
                         DatasetAccepted();
                         kodeHTML = "<span class='badge rounded-pill bg-info fw-bold'><i class='fa-sharp fa-solid fa-circle-check'></i> Yeay, your dataset is qualified to process</span>";
                     } else {

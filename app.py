@@ -1,3 +1,4 @@
+from email import header
 from fileinput import filename
 from importlib.resources import path
 import json
@@ -73,7 +74,7 @@ def SamplingData(dataset):
 
 
 # Fungsi mengecek apakah dataset merupakan kasus binary classification atau bukan
-def CheckIsBalance(dataset):
+def BalancingData(dataset, filename):
     # class target
     target = GetInfo(dataset)[0]
     
@@ -90,10 +91,12 @@ def CheckIsBalance(dataset):
         
         if (sumData1 <= threshold) or (sumData2 <= threshold):
             balanceDataset = SamplingData(dataset)
-            return balanceDataset
+            balanceDataset.to_csv(app.config['UPLOAD_FOLDER'] + filename, index=False)
         else:
-            return dataset
+            balanceDataset = dataset
 
+        return balanceDataset
+        
 
 @app.route('/tuning/check/', methods=['POST'])
 # Fungsi tentang informasi dataset
@@ -104,15 +107,16 @@ def CekDataset():
         path = app.config['UPLOAD_FOLDER'] + filename
 
         dataset = pd.read_csv(path)
-        jumlahData = len(dataset.index)
         dataKosong = int(dataset.isna().sum().sum())
 
         if dataKosong == 0:
-            dataset = CheckIsBalance(dataset)
+            dataset = BalancingData(dataset, filename)
             status = 1 # memenuhi syarat
         else:
             dataset = dataset
             status = 0 # tidak memenuhi syarat
+
+        jumlahData = len(dataset.index)
         
         result = {
             'jumlah_data': jumlahData,
