@@ -1,24 +1,378 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US" dir="ltr">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuning Hyperparameter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSS File -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 
-    <!-- JS File -->
+    <!-- ===============================================-->
+    <!--    Document Title-->
+    <!-- ===============================================-->
+    <title>Smart Tune | Tune hyperparameter for your project</title>
+
+
+    <!-- ===============================================-->
+    <!--    Favicons-->
+    <!-- ===============================================-->
+    <link rel="apple-touch-icon" sizes="180x180" href="static/img/favicons.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/img/favicons.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/img/favicons.png">
+    <link rel="shortcut icon" type="image/x-icon" href="static/img/favicons.png">
+    <link rel="manifest" href="static/img/favicons/manifest.json">
+    <meta name="msapplication-TileImage" content="static/img/favicons.png">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <!-- ===============================================-->
+    <!--    Stylesheets-->
+    <!-- ===============================================-->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="static/vendors/prism/prism.css" rel="stylesheet">
+    <link href="static/vendors/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="static/css/theme.css" rel="stylesheet" />
+    <link href="static/css/user.css" rel="stylesheet" />
+    <link rel="stylesheet" href="static/css/style.css">
 
 </head>
 
+
 <body>
 
-    <!-- JS Files -->
-    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <!-- ===============================================-->
+    <!--    Main Content-->
+    <!-- ===============================================-->
+    <main class="main" id="top">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark" data-navbar-on-scroll="data-navbar-on-scroll">
+            <div class="container">
+                <a class="navbar-brand" href="index.html"><img src="static/img/Logo.png" alt="" class="nav-img" /></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i
+            class="fa-solid fa-bars text-white fs-3"></i></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="#about-us">About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="#constraint">Constraints</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="#hyperparameter">Hyperparameter</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="#faq">FAQ</a></li>
+                        <li class="nav-item mt-2 mt-lg-0"><a class="nav-link btn btn-light text-black w-md-25 w-50 w-lg-100" aria-current="page" href="/tuning">Tuning</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="bg-dark"><img class="img-fluid position-absolute end-0" src="static/img/hero/hero-bg.png" alt="" />
+
+
+            <!-- ============================================-->
+            <!-- <section> begin ============================-->
+            <section>
+
+                <div class="container">
+                    <div class="row align-items-center py-lg-8 py-6">
+                        <div class="col-lg-6 text-center text-lg-start">
+                            <h1 class="text-white fs-5 fs-xl-6">Save time by tuning hyperparameters</h1>
+                            <p class="text-white py-lg-3 py-2">Finding optimal hyperparameters for your ANN project. Save your time, save your energy!</p>
+                            <div class="d-sm-flex align-items-center gap-3">
+                                <a href="/tuning" class="btn btn-success text-black mb-3 w-75">Tune it Now</a>
+                                <a href="#manual" class="btn btn-outline-light mb-3 w-75">Manual</a>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 text-center text-lg-end mt-3 mt-lg-0"><img class="img-fluid" src="static/img/hero/hero-graphics.png" alt="" /></div>
+                    </div>
+                </div>
+                <!-- end of .container-->
+
+            </section>
+            <!-- <section> close ============================-->
+            <!-- ============================================-->
+
+
+        </div>
+
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section class="pt-8 mt-8 pt-lg-0">
+
+            <div class="container" id="about-us">
+                <h2 class="mx-auto text-center fs-lg-6 fs-md-5 w-lg-75">About Us</h2>
+                <div class="d-flex flex-column-reverse flex-lg-row mt-8">
+                    <div class="col-lg-6">
+                        <h1 class="fs-lg-4 fs-md-3 fs-xl-5">We help your project by finding the optimal hyperparameter.</h1>
+                        <ul class="list-unstyled">
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-leaf fs-lg-4 fs-3"></i><span>Looking for
+                  the most optimal hyperparameter.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-eye fs-lg-4 fs-3"></i><span>Improve the
+                  accuracy of your ANN project.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-sun fs-lg-4 fs-3"></i><span>Save your
+                  time and energy.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-diagram-project fs-lg-4 fs-3"></i><span>Used for binary classificaiton projects
+                  only.</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-6 text-center text-lg-end"><img class="img-fluid" src="static/img/offer/2.png" alt="" />
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section>
+
+            <div class="container" id="manual">
+                <h2 class="mx-auto text-center fs-lg-6 fs-md-5 w-lg-75">How to Use</h2>
+                <div class="d-flex flex-column-reverse flex-lg-row">
+                    <div class="col-lg-12">
+                        <ul class="list-unstyled">
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-circle-check fs-lg-4 fs-3"></i><span>Click on <strong>Tune it Now</strong> button to redirect you to the tuning page.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-circle-check fs-lg-4 fs-3"></i><span>Upload your <strong>CLEAN</strong> dataset and then our system will check your dataset.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-circle-check fs-lg-4 fs-3"></i><span>If your dataset no missing value, click on <strong>Tune Hyperparameter</strong> button to start tune your dataset.</span></li>
+                            <li class="fs-2 shadow-sm offer-list-item"><i class="fa-solid fa-circle-check fs-lg-4 fs-3"></i><span>Wait for 5 - 10 minutes and we will give you the result. Good luck!</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section>
+
+            <div class="container" id="constraint">
+                <h2 class="mx-auto text-center fs-lg-6 fs-md-5 w-lg-75">Our constraints you need to know
+                </h2>
+                <div class="row gx-xl-7 mt-5">
+                    <div class="col-md-4 mb-6 mb-md-0 text-center text-md-start"><img class="w-50 w-md-100" src="static/img/limit-1.png" alt="" />
+                        <h4 class="mt-3 my-1 text-dark fw-bold border-black my-4">No Feature Engineering</h4>
+                        <p class="fs-1 mb-0">We don't provide feature engineering features. We just do the tuning. So, make sure your dataset clean.</p>
+                    </div>
+                    <div class="col-md-4 mb-6 mb-md-0 text-center text-md-start"><img class="w-50 w-md-100" src="static/img/limit-2.png" alt="" />
+                        <h4 class="mt-3 my-1 text-dark fw-bold border-black my-4">ANN Algorithm</h4>
+                        <p class="fs-1 mb-0">We provide the tuning used in the ANN algorithm in the case of binary classification only.</p>
+                    </div>
+                    <div class="col-md-4 mb-6 mb-md-0 text-center text-md-start"><img class="w-50 w-md-100" src="static/img/limit-3.png" alt="" />
+                        <h4 class="mt-3 my-1 text-dark fw-bold border-black my-4">No Building Model</h4>
+                        <p class="fs-1 mb-0">We don't provide a build model due to limited resources and will take a long time.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+
+
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section>
+
+            <div class="container" id="hyperparameter">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 text-center text-lg-start"><img class="img-fluid" src="static/img/offer/1.png" alt="" />
+                    </div>
+                    <div class="col-lg-6">
+                        <h1 class="fs-xl-5 fs-lg-4 fs-3">Hyperparameters that we can generate from this software.</h1>
+                        <ul class="list-unstyled my-xl-5 my-3">
+                            <li class="fs-2 my-4 d-flex align-items-center gap-3 text-black"><i class="fa-solid fa-circle-check fs-4 text-dark"></i><span>Configuration of your network (input,
+                  hidden, and output layers).</span></li>
+                            <li class="fs-2 my-4 d-flex align-items-center gap-3 text-black"><i class="fa-solid fa-circle-check fs-4 text-dark"></i><span>Number of each dense layers
+                  (neurons).</span></li>
+                            <li class="fs-2 my-4 d-flex align-items-center gap-3 text-black"><i class="fa-solid fa-circle-check fs-4 text-dark"></i><span>Learning rate.</span></li>
+                            <li class="fs-2 my-4 d-flex align-items-center gap-3 text-black"><i class="fa-solid fa-circle-check fs-4 text-dark"></i><span>Dropout rate.</span></li>
+                            <li class="fs-2 my-4 d-flex align-items-center gap-3 text-black"><i class="fa-solid fa-circle-check fs-4 text-dark"></i><span>Accuracy prediction based on tuning
+                  results.</span></li>
+                        </ul>
+                        <button class="btn btn-dark">Yeah, you will get it all.</button>
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section>
+
+            <div class="container"><img class="img-fluid" src="static/img/offer/3.png" alt="" id="faq" />
+                <div class="row mt-5 align-items-center">
+                    <div class="col-md-6">
+                        <h2 class="fs-md-4 fs-3 pt-3">Frequently Asked Questions (FAQ)</h2>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="accordion accordion-flush" id="accordionFlushExample">
+                            <div class="accordion-item"></div>
+                            <h2 class="accordion-header border-bottom" id="srgdgfdgdgg45">
+                                <button class="accordion-button collapsed text-black" type="button" data-bs-toggle="collapse" data-bs-target="#srgdgfdgdgg45tyuu" aria-expanded="false"><span class="fs-1 pe-3">Is this software
+                    only for Artificial Neural Network (ANN) algorithm?</span></button>
+                            </h2>
+                            <div class="accordion-collapse collapse" aria-labelledby="srgdgfdgdgg45" data-bs-parent="#accordionFlushExample" id="srgdgfdgdgg45tyuu">
+                                <div class="accordion-body">
+                                    <p class="mb-0">Yes. So far the <strong>Smart Tune</strong> software is only intended for binary classification using the ANN algorithm.</p>
+                                </div>
+                            </div>
+                            <div class="accordion-item"></div>
+                            <h2 class="accordion-header border-bottom" id="sxvdgrfhfh276">
+                                <button class="accordion-button collapsed text-black" type="button" data-bs-toggle="collapse" data-bs-target="#srgdgfdgdgg45tyuu5ghj" aria-expanded="false"><span class="fs-1 pe-3">How fast can
+                    tuning be done? </span></button>
+                            </h2>
+                            <div class="accordion-collapse collapse" aria-labelledby="sxvdgrfhfh276" data-bs-parent="#accordionFlushExample" id="srgdgfdgdgg45tyuu5ghj">
+                                <div class="accordion-body">
+                                    <p class="mb-0">Speed ​​tuning is based on the amount of data you have, the internet speed you use, and the number of users accessing our website.</p>
+                                </div>
+                            </div>
+                            <div class="accordion-item"></div>
+                            <h2 class="accordion-header border-bottom" id="sxvdgrfhfh276">
+                                <button class="accordion-button collapsed text-black" type="button" data-bs-toggle="collapse" data-bs-target="#question3" aria-expanded="false"><span class="fs-1 pe-3">Does this software guarantee
+                    that the result of hyperparameters are definitely the best? </span></button>
+                            </h2>
+                            <div class="accordion-collapse collapse" aria-labelledby="sxvdgrfhfh276" data-bs-parent="#accordionFlushExample" id="question3">
+                                <div class="accordion-body">
+                                    <p class="mb-0">We don't guarantee that the result of hyperparameters are the best. This software is only limited to suggesting optimal hyperparameters based on the data you sent.</p>
+                                </div>
+                            </div>
+                            <h2 class="accordion-header border-bottom" id="sxvdgrfhfh276">
+                                <button class="accordion-button collapsed text-black" type="button" data-bs-toggle="collapse" data-bs-target="#question4" aria-expanded="false"><span class="fs-1 pe-3">What is Hyperparameter?</span></button>
+                            </h2>
+                            <div class="accordion-collapse collapse" aria-labelledby="sxvdgrfhfh276" data-bs-parent="#accordionFlushExample" id="question4">
+                                <div class="accordion-body">
+                                    <p class="mb-3">Anything in machine learning and deep learning that you decide their values or choose their configuration before training begins and whose values or configuration will remain the same when training ends is a hyperparameter.</p>
+                                    <p>Here samples of hyperparameter:</p>
+                                    <ul>
+                                        <li class="fw-bold mb-3">Network Configuration</li>
+                                        <p>It consists of 3 layers, namely <strong>input layer</strong>, <strong>hidden layer</strong>, and <strong>output layer</strong>. The input layer contains input from the dataset, the hidden layer is in charge of training
+                                            data, and the output layer shows the results of the training.</p>
+                                        <li class="fw-bold mb-3">Neurons</li>
+                                        <p>Neurons in deep learning models are nodes through which data and computations flow. It flows from input layer to output layer.</p>
+                                        <li class="fw-bold mb-3">Learning Rate</li>
+                                        <p>The learning rate is a hyperparameter that controls how much to change the model in response to the estimated error each time the model weights are updated. Choosing the learning rate is challenging as a value too
+                                            small may result in a long training process that could get stuck, whereas a value too large may result in learning a sub-optimal set of weights too fast or an unstable training process.</p>
+                                        <li class="fw-bold mb-3">Dropout Rate</li>
+                                        <p>Dropout is a technique where randomly selected neurons are ignored during training. They are “dropped out” randomly. This means that their contribution to the activation of downstream neurons is temporally removed
+                                            on the forward pass, and any weight updates are not applied to the neuron on the backward pass.</p>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+        <!-- ============================================-->
+        <!-- <section> begin ============================-->
+        <section>
+
+            <div class="container" id="constraint">
+                <h2 class="mx-auto text-center fs-lg-6 fs-md-5 w-lg-75">Let's introduce our team
+                </h2>
+                <div class="row gx-xl-7 mt-5">
+                    <div class="col-md-4 mb-6 mb-md-0 text-center"><img class="w-50 w-md-75 img-round" src="static/img/team/1.jpeg" alt="" />
+                        <h5 class="mt-3 my-1 text-dark fw-bold border-black my-4">Adi Zaenul Mustaqim</h5>
+                        <p class="fs-0 mb-1">22/498910/PPA/06327</p>
+                        <p class="fs-0 mb-1">Master of Computer Science Student</p>
+                        <p class="fs-0 mb-1">Universitas Gadjah Mada</p>
+                    </div>
+                    <div class="col-md-4 mb-6 mb-md-0 text-center"><img class="w-50 w-md-75 img-round" src="static/img/team/1.jpeg" alt="" />
+                        <h5 class="mt-3 my-1 text-dark fw-bold border-black my-4">Luthfia Nurma Hapsari</h5>
+                        <p class="fs-0 mb-1">22/501342/PPA/06385</p>
+                        <p class="fs-0 mb-1">Master of Computer Science Student</p>
+                        <p class="fs-0 mb-1">Universitas Gadjah Mada</p>
+                    </div>
+                    <div class="col-md-4 mb-6 mb-md-0 text-center"><img class="w-50 w-md-75 img-round" src="static/img/team/1.jpeg" alt="" />
+                        <h5 class="mt-3 my-1 text-dark fw-bold border-black my-4">Hizbullah Hamda</h5>
+                        <p class="fs-0 mb-1">22/499351/PPA/06333</p>
+                        <p class="fs-0 mb-1">Master of Computer Science Student</p>
+                        <p class="fs-0 mb-1">Universitas Gadjah Mada</p>
+                    </div>
+                </div>
+            </div>
+            <!-- end of .container-->
+
+        </section>
+        <!-- <section> close ============================-->
+        <!-- ============================================-->
+
+    </main>
+    <!-- ===============================================-->
+    <!--    End of Main Content-->
+    <!-- ===============================================-->
+
+
+
+    <!-- ============================================-->
+    <!-- <section> begin ============================-->
+    <section class="pt-0">
+
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-lg-6 col-sm-12">
+                    <a href="index.html"><img class="img-fluid mt-5 mb-4" src="static/img/black-logo.png" alt="" /></a>
+                    <p class="w-lg-75 text-gray">A software for automatic hyperparameter tuning to find the most optimal hyperparameter configuration for your machine larning project.</p>
+                </div>
+                <div class="col-lg-3 col-sm-12">
+                    <h3 class="fw-bold fs-1 mt-5 mb-4">Our Team</h3>
+                    <ul class="list-unstyled">
+                        <li class="my-3"><a href="#">Adi Zaenul Mustaqim</a></li>
+                        <li class="my-3"><a href="#">Hizbullah Hamda</a></li>
+                        <li class="my-3"><a href="#">Luthfia Nurma Hapsari</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-sm-12">
+                    <h3 class="fw-bold fs-1 mt-5 mb-4">Tag</h3>
+                    <ul class="list-unstyled">
+                        <li class="my-3"><a href="#">Hyperparameter</a></li>
+                        <li class="my-3"><a href="#">Tuning</a></li>
+                        <li class="my-3"><a href="#">Artificial Neural Network</a></li>
+                    </ul>
+                </div>
+            </div>
+            <p class="text-gray">All rights reserved.</p>
+        </div>
+        <!-- end of .container-->
+
+    </section>
+    <!-- <section> close ============================-->
+    <!-- ============================================-->
+
+
+
+
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <script src="static/vendors/popper/popper.min.js"></script>
+    <script src="static/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="static/vendors/anchorjs/anchor.min.js"></script>
+    <script src="static/vendors/is/is.min.js"></script>
+    <script src="static/vendors/fontawesome/all.min.js"></script>
+    <script src="static/vendors/lodash/lodash.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="static/vendors/prism/prism.js"></script>
+    <script src="static/vendors/swiper/swiper-bundle.min.js"></script>
+    <script src="static/js/theme.js"></script>
+
 </body>
 
 </html>

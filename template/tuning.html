@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- ===============================================-->
+    <!--    Document Title-->
+    <!-- ===============================================-->
+    <title>Smart Tune | Tune hyperparameter for your project</title>
+
+
+    <!-- ===============================================-->
+    <!--    Favicons-->
+    <!-- ===============================================-->
+    <link rel="apple-touch-icon" sizes="180x180" href="static/img/favicons.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/img/favicons.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/img/favicons.png">
+    <link rel="shortcut icon" type="image/x-icon" href="static/img/favicons.png">
+    <link rel="manifest" href="static/img/favicons/manifest.json">
+    <meta name="msapplication-TileImage" content="static/img/favicons.png">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <!-- ===============================================-->
+    <!--    Stylesheets-->
+    <!-- ===============================================-->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="static/vendors/prism/prism.css" rel="stylesheet">
+    <link href="static/vendors/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <link href="static/css/theme.css" rel="stylesheet" />
+    <link href="static/css/user.css" rel="stylesheet" />
+    <link rel="stylesheet" href="static/css/dropzone.min.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/style.css">
+
+</head>
+
+
+<body>
+
+    <!-- ===============================================-->
+    <!--    Main Content-->
+    <!-- ===============================================-->
+    <main class="main" id="top">
+        <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" data-navbar-on-scroll="data-navbar-on-scroll">
+            <div class="container">
+                <a class="navbar-brand" href="/"><img src="static/img/Logo.png" alt="" class="nav-img" /></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><i
+                        class="fa-solid fa-bars text-white fs-3"></i></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/#about-us">About
+                                Us</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/#constraint">Constraints</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/#hyperparameter">Hyperparameter</a></li>
+                        <li class="nav-item"><a class="nav-link" aria-current="page" href="/#faq">FAQ</a></li>
+                        <li class="nav-item mt-2 mt-lg-0"><a class="nav-link btn btn-light text-black w-md-25 w-50 w-lg-100 bg-success" aria-current="page" href="#">Tuning</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <section class="pt-9">
+            <div class="card mx-auto">
+                <div class="card-body">
+
+                    <h3>Dropzone</h3>
+                    <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 20 Mb!
+                    </p>
+
+                    <p id="currentFile"></p>
+
+                    <div class="container-dropzone">
+                        <form action="#" class="dropzone" id="my-awesome-dropzone">
+                            <div class="fallback">
+                                <input name="file" type="file" multiple="multiple">
+                            </div>
+                            <div class="dz-message needsclick">
+                                <div class="mb-3">
+                                    <i class="display-4 text-muted bx fa-solid fa-cloud-arrow-up"></i>
+                                </div>
+                                <h4>Drop files here or click to upload.</h4>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="button" id="btn-check-dataset" class="btn btn-border btn-light text-black bg-success">Upload & Check Dataset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mx-auto success-check-dataset hide">
+                <div class="card-body">
+                    <h3>Checking Result</h3>
+                    <p class="card-title-desc">Here is the result of checking your dataset</p>
+                    <div>
+                        <table>
+                            <tr>
+                                <th colspan="2" class="table-header" id="table-header">Dataset Information!</th>
+                            </tr>
+                            <tr class="mt-5">
+                                <td width="20%">Number of Data</td>
+                                <td id="jumlah_data">: 2780 Data</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Attribute</td>
+                                <td id="jumlah_atribut">: 21 Attribute</td>
+                            </tr>
+                            <tr>
+                                <td>Target Field</td>
+                                <td id="target">: flag_transaksi_fraud</td>
+                            </tr>
+                            <tr>
+                                <td>Missing Value</td>
+                                <td id="data_kosong">: 0 Data</td>
+                            </tr>
+                            <tr>
+                                <td>Dataset Status</td>
+                                <td id="status">:
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="button" id="btn-tuning-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Tuning
+                            Hyperparameter</button>
+                        <a href="/tuning" id="btn-try-again" class="btn btn-border btn-light text-black bg-outline-success btn-submit mx-3">Try Again</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mx-auto tuning-dataset hide">
+                <div class="card-body">
+                    <h3>Tuning Hyperparameter Result</h3>
+                    <p class="card-title-desc">Here is the result of tuning hyperparameter</p>
+
+                    <div>
+                        <table>
+                            <tr>
+                                <th colspan="2" class="table-header bg-success">Hyperparameter Configuration!</th>
+                            </tr>
+                            <tr class="mt-5">
+                                <td width="20%">Execution Time</td>
+                                <td>: 9 minutes 15 seconds</td>
+                            </tr>
+                            <tr class="mt-5">
+                                <td>Network Configuration</td>
+                                <td>: 24 - 512 - 64 - 128 - 1</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Input Layer</td>
+                                <td>: 1 layer(s)</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Hidden Layer</td>
+                                <td>: 3 layer(s)</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Ouput Layer</td>
+                                <td>: 1 layer(s)</td>
+                            </tr>
+                            <tr>
+                                <td>Learning Rate</td>
+                                <td>: 0.001</td>
+                            </tr>
+                            <tr>
+                                <td>Dropout Rate</td>
+                                <td>: 0.2 rate</td>
+                            </tr>
+                            <tr>
+                                <td>Val. Accuracy</td>
+                                <td>: 95 %</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
+                        <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mx-auto build-model hide">
+                <div class="card-body">
+                    <h3>Build Model Result</h3>
+                    <p class="card-title-desc">Here is the result of build your model</p>
+
+                    <div id="loader">
+                        <div class="loader mx-auto mt-5 mb-5"></div>
+                        <p class="text-center execution-time">Execution time: 2 minutes 30 seconds</p>
+                        <p class="text-center">Please wait ...</p>
+                    </div>
+
+                    <!-- <div>
+                        <table>
+                            <tr>
+                                <th colspan="2" class="table-header bg-success">Build Model Information!</th>
+                            </tr>
+                            <tr class="mt-5">
+                                <td width="20%">Execution Time</td>
+                                <td>: 5 minutes 19 seconds</td>
+                            </tr>
+                            <tr>
+                                <td>Epochs</td>
+                                <td>: 120 / 1000 epochs</td>
+                            </tr>
+                            <tr>
+                                <td>Accuracy</td>
+                                <td>: 95.7 %</td>
+                            </tr>
+                            <tr>
+                                <td>Recall</td>
+                                <td>: 99.6 %</td>
+                            </tr>
+                            <tr>
+                                <td>Specificity</td>
+                                <td>: 92.1 %</td>
+                            </tr>
+                            <tr>
+                                <td>Sensitivity</td>
+                                <td>: 91.2 %</td>
+                            </tr>
+                            <tr>
+                                <td>AUC Score</td>
+                                <td>: 98.0 %</td>
+                            </tr>
+                            <tr>
+                                <td>Error Rate</td>
+                                <td>: 4.3 %</td>
+                            </tr>
+                            <tr>
+                                <td>Your Model</td>
+                                <td>: <button class="btn text-white btn-info btn-sm"><i
+                                            class="fa-solid fa-download"></i> Download Here</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="text-center mt-4">
+                        <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                    </div> -->
+                </div>
+            </div>
+        </section>
+
+
+
+    </main>
+    <!-- ===============================================-->
+    <!--    End of Main Content-->
+    <!-- ===============================================-->
+
+
+
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <script src="static/vendors/popper/popper.min.js"></script>
+    <script src="static/vendors/bootstrap/bootstrap.min.js"></script>
+    <script src="static/vendors/anchorjs/anchor.min.js"></script>
+    <script src="static/vendors/is/is.min.js"></script>
+    <script src="static/vendors/fontawesome/all.min.js"></script>
+    <script src="static/vendors/lodash/lodash.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="static/vendors/prism/prism.js"></script>
+    <script src="static/vendors/swiper/swiper-bundle.min.js"></script>
+    <script src="static/js/theme.js"></script>
+    <script src="static/js/jquery.min.js"></script>
+    <script src="static/js/script.js"></script>
+    <script src="static/js/dropzone.min.js"></script>
+    <script src="static/js/myScript.js"></script>
+
+</body>
+
+</html>
