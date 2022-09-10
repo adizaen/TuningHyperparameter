@@ -74,6 +74,9 @@
                     <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 20 Mb!
                     </p>
 
+                    <input type="text" id="file-path" class="hide">
+                    <input type="text" id="best-hyperparameter" class="hide">
+
                     <p id="currentFile"></p>
 
                     <div class="container-dropzone">
@@ -96,22 +99,37 @@
                 </div>
             </div>
 
-            <div class="card mx-auto success-check-dataset hide">
+            <div class="card mx-auto check-dataset hide">
                 <div class="card-body">
                     <h3>Checking Result</h3>
                     <p class="card-title-desc">Here is the result of checking your dataset</p>
-                    <div>
+
+                    <div id="loader-check-dataset">
+                        <div class="loader mx-auto mt-5 mb-5"></div>
+                        <p class="text-center execution-time">Execution time: 00 minutes 00 seconds</p>
+                        <p class="text-center">Please wait ...</p>
+                    </div>
+
+                    <div id="div-check-dataset">
                         <table>
                             <tr>
                                 <th colspan="2" class="table-header" id="table-header">Dataset Information!</th>
                             </tr>
                             <tr class="mt-5">
-                                <td width="20%">Number of Data</td>
-                                <td id="jumlah_data">: 2780 Data</td>
+                                <td width="20%">Execution Time</td>
+                                <td id="check-dataset-execution-time">: 9 minutes 15 seconds</td>
+                            </tr>
+                            <tr>
+                                <td>Dataset Name</td>
+                                <td id="nama-dataset">: Dataset</td>
+                            </tr>
+                            <tr>
+                                <td>Number of Data</td>
+                                <td id="jumlah-data">: 2780 Data</td>
                             </tr>
                             <tr>
                                 <td>Number of Attribute</td>
-                                <td id="jumlah_atribut">: 21 Attribute</td>
+                                <td id="jumlah-atribut">: 21 Attribute</td>
                             </tr>
                             <tr>
                                 <td>Target Field</td>
@@ -119,7 +137,7 @@
                             </tr>
                             <tr>
                                 <td>Missing Value</td>
-                                <td id="data_kosong">: 0 Data</td>
+                                <td id="data-kosong">: 0 Data</td>
                             </tr>
                             <tr>
                                 <td>Dataset Status</td>
@@ -128,11 +146,11 @@
                                 </td>
                             </tr>
                         </table>
-                    </div>
-                    <div class="text-center mt-4">
-                        <button type="button" id="btn-tuning-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Tuning
-                            Hyperparameter</button>
-                        <a href="/tuning" id="btn-try-again" class="btn btn-border text-black bg-outline-success btn-submit mx-3">Try Again</a>
+                        <div class="text-center mt-4">
+                            <button type="button" id="btn-tuning-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Tuning
+                                Hyperparameter</button>
+                            <a href="/tuning" id="btn-try-again" class="btn btn-border text-black bg-outline-success btn-submit mx-3">Try Again</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -142,48 +160,54 @@
                     <h3>Tuning Hyperparameter Result</h3>
                     <p class="card-title-desc">Here is the result of tuning hyperparameter</p>
 
-                    <div>
+                    <div id="loader-tuning">
+                        <div class="loader mx-auto mt-5 mb-5"></div>
+                        <p class="text-center execution-time">Execution time: 00 minutes 00 seconds</p>
+                        <p class="text-center">Please wait ...</p>
+                    </div>
+
+                    <div id="div-tuning">
                         <table>
                             <tr>
                                 <th colspan="2" class="table-header bg-success">Hyperparameter Configuration!</th>
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
-                                <td>: 9 minutes 15 seconds</td>
+                                <td id="tuning-execution-time">: 9 minutes 15 seconds</td>
                             </tr>
-                            <tr class="mt-5">
+                            <tr>
                                 <td>Network Configuration</td>
-                                <td>: 24 - 512 - 64 - 128 - 1</td>
+                                <td id="network-configuration">: 24 - 512 - 64 - 128 - 1</td>
                             </tr>
                             <tr>
                                 <td>Number of Input Layer</td>
-                                <td>: 1 layer(s)</td>
+                                <td id="input-layer">: 1 layer</td>
                             </tr>
                             <tr>
                                 <td>Number of Hidden Layer</td>
-                                <td>: 3 layer(s)</td>
+                                <td id="hidden-layer">: 3 layers</td>
                             </tr>
                             <tr>
                                 <td>Number of Ouput Layer</td>
-                                <td>: 1 layer(s)</td>
+                                <td id="output-layer">: 1 layer</td>
                             </tr>
                             <tr>
                                 <td>Learning Rate</td>
-                                <td>: 0.001</td>
+                                <td id="learning-rate">: 0.001</td>
                             </tr>
                             <tr>
                                 <td>Dropout Rate</td>
-                                <td>: 0.2 rate</td>
+                                <td id="dropout">: 0.2 rate</td>
                             </tr>
                             <tr>
-                                <td>Val. Accuracy</td>
-                                <td>: 95 %</td>
+                                <td>Accuracy</td>
+                                <td id="accuracy">: 95 %</td>
                             </tr>
                         </table>
-                    </div>
-                    <div class="text-center mt-4">
-                        <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
-                        <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                        <div class="text-center mt-4">
+                            <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
+                            <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -193,13 +217,13 @@
                     <h3>Build Model Result</h3>
                     <p class="card-title-desc">Here is the result of build your model</p>
 
-                    <div id="loader">
+                    <div id="loader-build-model">
                         <div class="loader mx-auto mt-5 mb-5"></div>
-                        <p class="text-center execution-time">Execution time: 2 minutes 30 seconds</p>
+                        <p class="text-center execution-time">Execution time: 00 minutes 00 seconds</p>
                         <p class="text-center">Please wait ...</p>
                     </div>
 
-                    <!-- <div>
+                    <div id="div-build-model">
                         <table>
                             <tr>
                                 <th colspan="2" class="table-header bg-success">Build Model Information!</th>
@@ -242,10 +266,10 @@
                                             class="fa-solid fa-download"></i> Download Here</button></td>
                             </tr>
                         </table>
+                        <div class="text-center mt-4">
+                            <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                        </div>
                     </div>
-                    <div class="text-center mt-4">
-                        <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
-                    </div> -->
                 </div>
             </div>
         </section>

@@ -18,6 +18,7 @@ from tensorflow.keras.layers import Dense, Dropout
 from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
+from functools import partial
 from flask import Flask, jsonify, render_template, request, send_from_directory
 
 app = Flask(__name__, template_folder='template')
@@ -26,13 +27,15 @@ app.config['UPLOAD_FOLDER'] = './static/upload/'
 # Global Variable
 global FILE_PATH
 
-# route untuk menampilkan halaman awal (index.html)
+# route untuk menampilkan halaman awal (index.html) -> HOME
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
+# route untuk upload dataset
 @app.route('/tuning', methods=['GET', 'POST'])
-def index():
+def tuning():
     if request.method == 'POST':
         if request.files:
             fileDataset = request.files['file']
@@ -41,6 +44,43 @@ def index():
             return render_template('tuning.html')
 
     return render_template('tuning.html')
+
+
+# route untuk mengecek dataset
+@app.route('/tuning/check', methods=['POST'])
+# Fungsi tentang informasi dataset
+def CheckDataset():
+    if request.method == 'POST':
+        getData = request.get_data()
+        filename = getData.decode('utf-8')
+        path = app.config['UPLOAD_FOLDER'] + filename
+
+        dataset = pd.read_csv(path)
+        dataKosong = int(dataset.isna().sum().sum())
+
+        if dataKosong == 0:
+            dataset = BalancingData(dataset, filename)
+            status = 1 # memenuhi syarat
+        else:
+            dataset = dataset
+            status = 0 # tidak memenuhi syarat
+
+        jumlahData = len(dataset.index)
+        
+        result = {
+            'nama-dataset': filename,
+            'file-path': path,
+            'jumlah-data': jumlahData,
+            'jumlah-atribut':  GetInfo(dataset)[1],
+            'target': GetInfo(dataset)[0],
+            'data-kosong': dataKosong,
+            'status': status,
+        }
+            
+        return jsonify(result)
+    else:
+        pesan= "Tidak ada method POST"
+        return pesan
 
 
 # Fungsi untuk mengetahui nama kelas (target) dan jumlah atribut
@@ -96,40 +136,7 @@ def BalancingData(dataset, filename):
             balanceDataset = dataset
 
         return balanceDataset
-        
 
-@app.route('/tuning/check/', methods=['POST'])
-# Fungsi tentang informasi dataset
-def CekDataset():
-    if request.method == 'POST':
-        getData = request.get_data()
-        filename = getData.decode('utf-8')
-        path = app.config['UPLOAD_FOLDER'] + filename
-
-        dataset = pd.read_csv(path)
-        dataKosong = int(dataset.isna().sum().sum())
-
-        if dataKosong == 0:
-            dataset = BalancingData(dataset, filename)
-            status = 1 # memenuhi syarat
-        else:
-            dataset = dataset
-            status = 0 # tidak memenuhi syarat
-
-        jumlahData = len(dataset.index)
-        
-        result = {
-            'jumlah_data': jumlahData,
-            'jumlah_atribut':  GetInfo(dataset)[1],
-            'target': GetInfo(dataset)[0],
-            'data_kosong': dataKosong,
-            'status': status,
-        }
-            
-        return jsonify(result)
-    else:
-        pesan= "Tidak ada method POST"
-        return pesan
 
 # Fungsi pembagian data menjadi data latih dan data uji
 def SplitData(dataset):
@@ -155,7 +162,7 @@ def SplitData(dataset):
 
 
 # Fungsi untuk membangun jaringan ANN
-def create_model(hp):
+def build_model_extra_args(jumlahInput, hp):
   
     # tuning learning rate
     hp_learning_rate= hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
@@ -165,10 +172,10 @@ def create_model(hp):
 
     # input layer
     model= Sequential()
-    model.add(Dense(units= hp_units, input_dim= GetInfo(dataset)[1], activation= 'relu'))
+    model.add(Dense(units= hp_units, input_dim= jumlahInput, activation= 'relu'))
 
     # Tuning banyaknya hidden layer layer dan neuron tiap layer
-    for i in range(hp.Int('num_layers', 2, 6)):
+    for i in range(hp.Int('num_layers', 2, 5)):
         
         # Tuning jumlah neuron tiap hidden layer
         hp_units = hp.Int('units_' + str(i), min_value= 32, max_value= 704, step= 32)
@@ -189,10 +196,17 @@ def create_model(hp):
 
 
 # fUNGSI TUNING
-def Tuning(dataset):
+@app.route('/tuning/process', methods=['POST'])
+def Tuning():
+    getData = request.get_data()
+    filePath = getData.decode('utf-8')
+    dataset = pd.read_csv(filePath)
+
+    create_model = partial(build_model_extra_args, GetInfo(dataset)[1])
+
     tuner = BayesianOptimization (
         create_model,
-        objective= 'val_accuracy',
+        objective= 'accuracy',
         max_trials= 5,
         directory= 'Tuning Result',
         project_name= 'Bayesian Optimization',
@@ -209,21 +223,23 @@ def Tuning(dataset):
     
     # split data
     X_train = SplitData(dataset)['X_train']
-    X_test = SplitData(dataset)['X_test']
     y_train = SplitData(dataset)['y_train']
-    y_test = SplitData(dataset)['y_test']
 
     # proses tuning
-    tuner.search(X_train, y_train, epochs= 1000, validation_split= 0.2, callbacks = [earlystopper])
+    tuner.search(X_train, y_train, epochs= 300, validation_split= 0.2, callbacks = [earlystopper])
 
     # print hyperparameter paling optimal
     best_hps= tuner.get_best_hyperparameters(num_trials= 1)[0]
-   
-    return best_hps
+    best_hps_values = best_hps.values
+    best_hps_values['unit_input'] = GetInfo(dataset)[1]
+
+    return jsonify(best_hps_values)
 
 
 # Fungsi untuk membuat model
-def BuildModel():
+def BuildModel(filePath):
+    dataset = pd.read_csv(filePath)
+
     # split data
     X_train = SplitData(dataset)['X_train']
     X_test = SplitData(dataset)['X_test']
