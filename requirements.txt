@@ -8,7 +8,8 @@ tensorflow-gpu
 keras
 sklearn
 imblearn
-flask_session
+pandas
+functools
 
 
 # flask

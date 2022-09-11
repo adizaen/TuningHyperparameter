@@ -1,25 +1,42 @@
-from email import header
-from fileinput import filename
-from importlib.resources import path
+# from email import header
+# from fileinput import filename
+# from importlib.resources import path
+# import json
+# import os
+# from unittest.mock import patch
+# import scikeras
+# import keras_tuner
+# import numpy as np
+# import tensorflow as tf
+# import keras_tuner as kt
+# import pandas as pd
+# from keras.callbacks import EarlyStopping
+# from keras_tuner.tuners import BayesianOptimization
+# from tensorflow.keras.optimizers import Adam
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import Dense, Dropout
+# from scikeras.wrappers import KerasClassifier
+# from sklearn.model_selection import train_test_split
+# from imblearn.combine import SMOTEENN
+# from functools import partial
+# from flask import Flask, jsonify, render_template, request, send_from_directory
 import json
 import os
-from unittest.mock import patch
 import scikeras
 import keras_tuner
 import numpy as np
 import tensorflow as tf
 import keras_tuner as kt
 import pandas as pd
+from functools import partial
+from flask import Flask, jsonify, render_template, request
 from keras.callbacks import EarlyStopping
 from keras_tuner.tuners import BayesianOptimization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-from scikeras.wrappers import KerasClassifier
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
-from functools import partial
-from flask import Flask, jsonify, render_template, request, send_from_directory
 
 app = Flask(__name__, template_folder='template')
 app.config['UPLOAD_FOLDER'] = './static/upload/'
@@ -260,18 +277,18 @@ def Tuning():
 
 
 # Fungsi untuk membuat model
-def BuildModel(filePath):
-    dataset = pd.read_csv(filePath)
+# def BuildModel(filePath):
+#     dataset = pd.read_csv(filePath)
 
-    # split data
-    X_train = SplitData(dataset)['X_train']
-    X_test = SplitData(dataset)['X_test']
-    y_train = SplitData(dataset)['y_train']
-    y_test = SplitData(dataset)['y_test']
+#     # split data
+#     X_train = SplitData(dataset)['X_train']
+#     X_test = SplitData(dataset)['X_test']
+#     y_train = SplitData(dataset)['y_train']
+#     y_test = SplitData(dataset)['y_test']
 
-    # fit model menggunakan hasil tuning hyperparameter dan melatihnya
-    model= tuner.hypermodel.build(best_hps)
-    history= model.fit(X_train, y_train, epochs= 1000, validation_split= 0.2, callbacks= [earlystopper])
+#     # fit model menggunakan hasil tuning hyperparameter dan melatihnya
+#     model= tuner.hypermodel.build(best_hps)
+#     history= model.fit(X_train, y_train, epochs= 1000, validation_split= 0.2, callbacks= [earlystopper])
 
 
 if (__name__ == '__main__'):
