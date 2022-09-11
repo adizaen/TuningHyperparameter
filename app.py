@@ -23,6 +23,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory
 
 app = Flask(__name__, template_folder='template')
 app.config['UPLOAD_FOLDER'] = './static/upload/'
+app.config['RESULT_SUMMARY'] = 'Tuning Result/Bayesian Optimization/'
 
 # Global Variable
 global FILE_PATH
@@ -195,7 +196,24 @@ def build_model_extra_args(jumlahInput, hp):
     return model
 
 
-# fUNGSI TUNING
+# Get metric performance
+def TunerSearchSummary(trial):
+
+    filePath= 'Tuning Result/Bayesian Optimization/trial_' + str(trial) + '/trial.json'
+    
+    # open JSON file
+    fileJSON = open(filePath)
+    
+    # load data JSON
+    data = json.load(fileJSON)
+    
+    accuracy = (data['metrics']['metrics']['accuracy']['observations'][0]['value'][0]) * 100
+    val_accuracy = (data['metrics']['metrics']['val_accuracy']['observations'][0]['value'][0]) * 100
+
+    return [accuracy, val_accuracy]
+
+
+# Fungsi Tuning
 @app.route('/tuning/process', methods=['POST'])
 def Tuning():
     getData = request.get_data()
@@ -204,10 +222,13 @@ def Tuning():
 
     create_model = partial(build_model_extra_args, GetInfo(dataset)[1])
 
+    # define max trials
+    max_trials = 5
+
     tuner = BayesianOptimization (
         create_model,
         objective= 'accuracy',
-        max_trials= 5,
+        max_trials= max_trials,
         directory= 'Tuning Result',
         project_name= 'Bayesian Optimization',
         overwrite= True
@@ -232,6 +253,8 @@ def Tuning():
     best_hps= tuner.get_best_hyperparameters(num_trials= 1)[0]
     best_hps_values = best_hps.values
     best_hps_values['unit_input'] = GetInfo(dataset)[1]
+    best_hps_values['accuracy'] = TunerSearchSummary(max_trials - 1)[0]
+    best_hps_values['val_accuracy'] = TunerSearchSummary(max_trials - 1)[1]
 
     return jsonify(best_hps_values)
 

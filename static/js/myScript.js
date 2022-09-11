@@ -213,6 +213,8 @@ $("#btn-tuning-dataset").click(function(e) {
             configuration = neuronInputLayer + " - " + neuronHiddenLayer + neuronOutputLayer;
             learningRate = String(response['learning_rate']);
             dropout = response['rate'].toFixed(1);
+            accuracy = response['accuracy'].toFixed(2);
+            valAccuracy = response['val_accuracy'].toFixed(2);
 
             $('#network-configuration').html(': ' + configuration);
             $('#input-layer').html(': 1 Layer');
@@ -220,6 +222,8 @@ $("#btn-tuning-dataset").click(function(e) {
             $('#output-layer').html(': 1 Layer');
             $('#learning-rate').html(': ' + learningRate);
             $('#dropout').html(': ' + dropout + ' Rate');
+            $('#accuracy').html(': ' + accuracy + ' %');
+            $('#val-accuracy').html(': ' + valAccuracy + ' %');
         },
         error: function(error) {
             console.log("AJAX Gagal Response");
