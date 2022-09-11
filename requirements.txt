@@ -4,8 +4,8 @@ pillow
 scikeras
 keras_tuner
 numpy
-tensorflow-gpu
-keras.callbacks
+tensorflow-cpu
+keras
 sklearn
 imblearn
 pandas

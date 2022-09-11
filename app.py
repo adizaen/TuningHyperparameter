@@ -24,9 +24,6 @@ import json
 import os
 import scikeras
 import keras_tuner
-import numpy as np
-import tensorflow as tf
-import keras_tuner as kt
 import pandas as pd
 from functools import partial
 from flask import Flask, jsonify, render_template, request
