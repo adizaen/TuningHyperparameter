@@ -5,7 +5,7 @@ scikeras
 keras_tuner
 numpy
 tensorflow-gpu
-keras
+keras['callbacks']
 sklearn
 imblearn
 pandas
