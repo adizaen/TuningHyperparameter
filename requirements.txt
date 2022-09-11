@@ -9,7 +9,6 @@ keras
 sklearn
 imblearn
 pandas
-functools
 
 
 # flask
