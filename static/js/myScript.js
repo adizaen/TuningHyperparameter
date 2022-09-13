@@ -102,12 +102,17 @@ function LoadingTuning(status) {
 
 // function ketika build model
 function LoadingBuildModel(status) {
+    $('#btn-build-model').addClass('hide');
+    $('#btn-reset').addClass('hide');
     $('.build-model').removeClass('hide');
 
     if (status == 1) {
+        message = TimeExecution(1);
         $('#loader-build-model').show();
         $('#div-build-model').hide();
     } else {
+        message = TimeExecution(0);
+        $('#build-execution-time').html(message);
         $('#loader-build-model').hide();
         $('#div-build-model').show();
     }
@@ -234,3 +239,61 @@ $("#btn-tuning-dataset").click(function(e) {
         }
     })
 });
+
+
+$("#btn-build-model").click(function(e) {
+    e.preventDefault();
+
+    file_path = $('#file-path').val();
+
+    // AJAX untuk kirim data dan menerima data kembalian dari app.py
+    $.ajax({
+        url: '/build',
+        type: 'POST',
+        data: file_path,
+        dataType: 'json',
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: LoadingBuildModel(1),
+        success: function(response) {
+            epoch = response['epoch'];
+            buildAccuracy = response['accuracy'].toFixed(2);
+            buildRecall = response['recall'].toFixed(2);
+            buildSpecificity = response['specificity'].toFixed(2);
+            buildError = response['error'].toFixed(2);
+
+            $('#epoch').html(': ' + epoch + ' / 500 epochs');
+            $('#build-accuracy').html(': ' + buildAccuracy + ' %');
+            $('#build-recall').html(': ' + buildRecall + ' %');
+            $('#build-specificity').html(': ' + buildSpecificity + ' %');
+            $('#build-error').html(': ' + buildError + ' %');
+
+            console.log("AJAX Berhasil Response");
+            console.log(response);
+        },
+        error: function(error) {
+            console.log("AJAX Gagal Response");
+            console.log(error);
+        },
+        complete: function() {
+            LoadingBuildModel(0);
+        }
+    })
+});
+
+// $("#btn-download").click(function(e) {
+//     e.preventDefault();
+
+//     // AJAX untuk kirim data dan menerima data kembalian dari app.py
+//     $.ajax({
+//         url: '/download',
+//         type: 'POST',
+//         contentType: 'application/download',
+//         success: function(response) {
+//             console.log("AJAX Berhasil Response");
+//         },
+//         error: function(error) {
+//             console.log("AJAX Gagal Response");
+//             console.log(error);
+//         }
+//     })
+// });

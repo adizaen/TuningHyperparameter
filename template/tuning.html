@@ -210,7 +210,7 @@
                         </table>
                         <div class="text-center mt-4">
                             <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
-                            <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                            <a href="/tuning" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset Data</a>
                         </div>
                     </div>
                 </div>
@@ -234,40 +234,32 @@
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
-                                <td>: 5 minutes 19 seconds</td>
+                                <td id="build-execution-time">: 00 minutes 00 seconds</td>
                             </tr>
                             <tr>
                                 <td>Epochs</td>
-                                <td>: 120 / 1000 epochs</td>
+                                <td id="epoch">: 0 / 500 epochs</td>
                             </tr>
                             <tr>
                                 <td>Accuracy</td>
-                                <td>: 95.7 %</td>
+                                <td id="build-accuracy">: 0 %</td>
                             </tr>
                             <tr>
                                 <td>Recall</td>
-                                <td>: 99.6 %</td>
+                                <td id="build-recall">: 0 %</td>
                             </tr>
                             <tr>
                                 <td>Specificity</td>
-                                <td>: 92.1 %</td>
-                            </tr>
-                            <tr>
-                                <td>Sensitivity</td>
-                                <td>: 91.2 %</td>
-                            </tr>
-                            <tr>
-                                <td>AUC Score</td>
-                                <td>: 98.0 %</td>
+                                <td id="build-specificity">: 0 %</td>
                             </tr>
                             <tr>
                                 <td>Error Rate</td>
-                                <td>: 4.3 %</td>
+                                <td id="build-error">: 0 %</td>
                             </tr>
                             <tr>
                                 <td>Your Model</td>
-                                <td>: <button class="btn text-white btn-info btn-sm"><i
-                                            class="fa-solid fa-download"></i> Download Here</button></td>
+                                <td>: <a href="{{ url_for('.download') }}" id="btn-download" class="btn text-white btn-info btn-sm"><i
+                                            class="fa-solid fa-download"></i> Download Here</a></td>
                             </tr>
                         </table>
                         <div class="text-center mt-4">

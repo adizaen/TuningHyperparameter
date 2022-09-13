@@ -25,8 +25,11 @@ import os
 import scikeras
 import keras_tuner
 import pandas as pd
+import pickle
+import shutil
+from joblib import dump
 from functools import partial
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 from keras.callbacks import EarlyStopping
 from keras_tuner.tuners import BayesianOptimization
 from tensorflow.keras.optimizers import Adam
@@ -34,19 +37,30 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
 from sklearn.model_selection import train_test_split
 from imblearn.combine import SMOTEENN
+from sklearn.metrics import confusion_matrix
 
 app = Flask(__name__, template_folder='template')
 app.config['UPLOAD_FOLDER'] = './static/upload/'
-app.config['RESULT_SUMMARY'] = 'Tuning Result/Bayesian Optimization/'
+app.config['RESULT_SUMMARY'] = 'result/bayesian/'
+app.config['RESULT_BEST_HPS'] = 'result/hyperparameter/'
+app.config['RESULT_MODEL'] = 'result/model/'
 
-# Global Variable
-global FILE_PATH
+
+def CreateDirectory(path):
+    dir = path
+    if os.path.exists(dir):
+        shutil.rmtree(dir)
+
+    os.makedirs(dir)
+
 
 # route untuk menampilkan halaman awal (index.html) -> HOME
 @app.route('/')
 def home():
+    CreateDirectory('result')
+    CreateDirectory('result/hyperparameter')
+    CreateDirectory('result/model')
     return render_template('index.html')
-
 
 # route untuk upload dataset
 @app.route('/tuning', methods=['GET', 'POST'])
@@ -108,24 +122,25 @@ def GetInfo(dataset):
 
 # Fungsi untuk sampling data -> menangani data tidak seimbang
 def SamplingData(dataset):
-    sm =  SMOTEENN(random_state= 42)
+    # sm =  SMOTEENN(random_state= 42)
     
-    target = GetInfo(dataset)[0]
+    # target = GetInfo(dataset)[0]
 
-    cols = dataset.columns.tolist()
-    cols = [c for c in cols if c not in [target]]
+    # cols = dataset.columns.tolist()
+    # cols = [c for c in cols if c not in [target]]
 
-    # X: data atribut dan Y: data kelas/target
-    X = dataset[cols]
-    Y = dataset[target]
+    # # X: data atribut dan Y: data kelas/target
+    # X = dataset[cols]
+    # Y = dataset[target]
 
-    # proses sampling dengan SMOTE
-    X_smote, Y_smote = sm.fit_resample(X, Y)
+    # # proses sampling dengan SMOTE
+    # X_smote, Y_smote = sm.fit_resample(X, Y)
 
-    # data Y setelah dilakukan SMOTE
-    X_smote[target] = Y_smote
+    # # data Y setelah dilakukan SMOTE
+    # X_smote[target] = Y_smote
     
-    return X_smote
+    # return X_smote
+    return dataset
 
 
 # Fungsi mengecek apakah dataset merupakan kasus binary classification atau bukan
@@ -213,7 +228,7 @@ def build_model_extra_args(jumlahInput, hp):
 # Get metric performance
 def TunerSearchSummary(trial):
 
-    filePath= 'Tuning Result/Bayesian Optimization/trial_' + str(trial) + '/trial.json'
+    filePath= app.config['RESULT_SUMMARY'] + '/trial_' + str(trial) + '/trial.json'
     
     # open JSON file
     fileJSON = open(filePath)
@@ -227,13 +242,7 @@ def TunerSearchSummary(trial):
     return [accuracy, val_accuracy]
 
 
-# Fungsi Tuning
-@app.route('/tuning/process', methods=['POST'])
-def Tuning():
-    getData = request.get_data()
-    filePath = getData.decode('utf-8')
-    dataset = pd.read_csv(filePath)
-
+def Tuner(dataset):
     create_model = partial(build_model_extra_args, GetInfo(dataset)[1])
 
     # define max trials
@@ -243,11 +252,14 @@ def Tuning():
         create_model,
         objective= 'accuracy',
         max_trials= max_trials,
-        directory= 'Tuning Result',
-        project_name= 'Bayesian Optimization',
+        directory= 'result',
+        project_name= 'bayesian',
         overwrite= True
     )
-    
+
+    return [tuner, max_trials]
+
+def EarlyStopper():
     # inisialisasi Earlystopping untuk menghentikan iterasi ketika tidak terjadi peningkatan akurasi
     earlystopper = EarlyStopping(
         monitor = 'val_loss', 
@@ -255,38 +267,110 @@ def Tuning():
         patience = 10, 
         verbose= 1
     )
-    
-    # split data
-    X_train = SplitData(dataset)['X_train']
-    y_train = SplitData(dataset)['y_train']
 
-    # proses tuning
-    tuner.search(X_train, y_train, epochs= 300, validation_split= 0.2, callbacks = [earlystopper])
+    return earlystopper
 
-    # print hyperparameter paling optimal
-    best_hps= tuner.get_best_hyperparameters(num_trials= 1)[0]
-    best_hps_values = best_hps.values
-    best_hps_values['unit_input'] = GetInfo(dataset)[1]
-    best_hps_values['accuracy'] = TunerSearchSummary(max_trials - 1)[0]
-    best_hps_values['val_accuracy'] = TunerSearchSummary(max_trials - 1)[1]
 
-    return jsonify(best_hps_values)
+# Fungsi Tuning
+@app.route('/tuning/process', methods=['POST'])
+def Tuning():
+    if request.method == 'POST':
+        getData = request.get_data()
+        filePath = getData.decode('utf-8')
+        dataset = pd.read_csv(filePath)
+
+        tuner = Tuner(dataset)[0]
+        max_trials = Tuner(dataset)[1]
+        earlystopper = EarlyStopper()
+        
+        # split data
+        X_train = SplitData(dataset)['X_train']
+        y_train = SplitData(dataset)['y_train']
+
+        # proses tuning
+        tuner.search(X_train, y_train, epochs= 300, validation_split= 0.2, callbacks = [earlystopper])
+
+        # print hyperparameter paling optimal
+        best_hps= tuner.get_best_hyperparameters(num_trials= 1)[0]
+
+        # save best hyperparameter
+        pickle.dump(best_hps, open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "wb"))
+
+        best_hps_values = best_hps.values
+        best_hps_values['unit_input'] = GetInfo(dataset)[1]
+        best_hps_values['accuracy'] = TunerSearchSummary(max_trials - 1)[0]
+        best_hps_values['val_accuracy'] = TunerSearchSummary(max_trials - 1)[1]
+
+        return jsonify(best_hps_values)
 
 
 # Fungsi untuk membuat model
-# def BuildModel(filePath):
-#     dataset = pd.read_csv(filePath)
+@app.route('/build', methods=['POST'])
+def BuildModel():
+    if request.method == 'POST':
+        getData = request.get_data()
+        filePath = getData.decode('utf-8')
+        dataset = pd.read_csv(filePath)
 
-#     # split data
-#     X_train = SplitData(dataset)['X_train']
-#     X_test = SplitData(dataset)['X_test']
-#     y_train = SplitData(dataset)['y_train']
-#     y_test = SplitData(dataset)['y_test']
+        tuner = Tuner(dataset)[0]
+        earlystopper = EarlyStopper()
+        best_hps = pickle.load(open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "rb"))
 
-#     # fit model menggunakan hasil tuning hyperparameter dan melatihnya
-#     model= tuner.hypermodel.build(best_hps)
-#     history= model.fit(X_train, y_train, epochs= 1000, validation_split= 0.2, callbacks= [earlystopper])
+        # split data
+        X_train = SplitData(dataset)['X_train']
+        y_train = SplitData(dataset)['y_train']
 
+        # fit model menggunakan hasil tuning hyperparameter dan melatihnya
+        model = tuner.hypermodel.build(best_hps)
+        history = model.fit(X_train, y_train, epochs= 500, validation_split= 0.2, callbacks= [earlystopper])
+        
+        # save model
+        model.save(app.config['RESULT_MODEL'] + "model.h5")
+
+        # hasil evaluasi
+        hasilEvaluasi = Evaluasi(model, dataset, history)
+
+        return hasilEvaluasi
+
+
+# Fungsi evaluasi model hasil training
+def Evaluasi(model, dataset, history):
+
+    X_test = SplitData(dataset)['X_test']
+    y_test = SplitData(dataset)['y_test']
+
+    # prediksi menggunakan data test
+    y_predict = (model.predict(X_test) > 0.5).astype('int32')
+
+    # confusion matrix
+    confusionMatrix = confusion_matrix(y_test, y_predict)
+
+    # data confusion matrix
+    tp, fn, fp, tn = confusionMatrix.reshape(-1)
+    accuracy = ((tn+tp)/(tn+tp+fp+fn)) * 100
+    precision = (tp/(tp+fp)) * 100
+    recall = (tp/(tp+fn)) * 100
+    specificity = (tn/(tn+fp)) * 100
+    error = 100 - accuracy
+
+    # epoch
+    history_dict = history.history
+    epoch = len(history_dict['accuracy'])
+
+    result = {
+        'epoch': epoch,
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'specificity': specificity,
+        'error': error
+    }
+    
+    return result
+
+@app.route('/download')
+def download():
+    return send_file(app.config['RESULT_MODEL'] + 'model.h5', as_attachment=True)
 
 if (__name__ == '__main__'):
     app.run(debug=True)
