@@ -261,6 +261,19 @@
                                 <td>: <a href="{{ url_for('.download') }}" id="btn-download" class="btn text-white btn-info btn-sm"><i
                                             class="fa-solid fa-download"></i> Download Here</a></td>
                             </tr>
+                            <tr class="margin-top">
+                                <th colspan="2" class="table-header bg-success">How to use your model?</th>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <ol class="manual-list">
+                                        <li>Install library Tensorflow <strong>pip install tensorflow</strong></li>
+                                        <li>Import tensorflow library into your project <strong>from tensorflow.keras.models import load_model</strong></li>
+                                        <li>Load your model and assign it into a variable e.g. variable with name model <strong>model = load_model('model.h5')</strong></li>
+                                        <li>Use this variable to predict new data on your project using <strong>predict</strong> function. Good Luck!</li>
+                                    </ol>
+                                </td>
+                            </tr>
                         </table>
                         <div class="text-center mt-4">
                             <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>

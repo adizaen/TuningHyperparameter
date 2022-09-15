@@ -415,3 +415,11 @@ card {
     color: #74788d;
     margin-bottom: 24px;
 }
+
+.manual-list li {
+    margin-top: 3px;
+}
+
+.margin-top {
+    margin-top: 5px;
+}

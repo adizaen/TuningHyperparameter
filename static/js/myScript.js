@@ -173,6 +173,9 @@ Dropzone.options.myAwesomeDropzone = {
 
                     $('#status').html(': ' + kodeHTML);
 
+                    console.log('AJAX Berhasil Response');
+                    console.log(response);
+
                 },
                 error: function(error) {
                     console.log("AJAX Gagal Response");

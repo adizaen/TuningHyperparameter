@@ -25,6 +25,7 @@ import os
 import scikeras
 import keras_tuner
 import pandas as pd
+import numpy as np
 import pickle
 import shutil
 from joblib import dump
@@ -85,14 +86,30 @@ def CheckDataset():
         path = app.config['UPLOAD_FOLDER'] + filename
 
         dataset = pd.read_csv(path)
+
+        # Check if dataset contain string
+        IsAnyString = not any(dataset.applymap(np.isreal).all())
+        
+        # check if any missing value in dataset
         dataKosong = int(dataset.isna().sum().sum())
 
-        if dataKosong == 0:
+        # message if dataset not acceptable to tune
+        message = []
+
+        # if no missing value instead and all data is numeric type, then balancing data
+        if dataKosong == 0 and IsAnyString == False:
             dataset = BalancingData(dataset, filename)
             status = 1 # memenuhi syarat
         else:
             dataset = dataset
             status = 0 # tidak memenuhi syarat
+            
+            if dataKosong > 0:
+                message.append('There is missing value detected in your dataset.')
+            
+            if IsAnyString== False:
+                message.append('Your dataset contain string value (not column name).')
+
 
         jumlahData = len(dataset.index)
         
@@ -104,171 +121,13 @@ def CheckDataset():
             'target': GetInfo(dataset)[0],
             'data-kosong': dataKosong,
             'status': status,
+            'message': message
         }
             
         return jsonify(result)
     else:
         pesan= "Tidak ada method POST"
         return pesan
-
-
-# Fungsi untuk mengetahui nama kelas (target) dan jumlah atribut
-def GetInfo(dataset):
-    jumlahAtribut = len(dataset.columns) - 1
-    namaKelas = dataset.columns[jumlahAtribut]
-
-    return [namaKelas, jumlahAtribut]
-
-
-# Fungsi untuk sampling data -> menangani data tidak seimbang
-def SamplingData(dataset):
-    # sm =  SMOTEENN(random_state= 42)
-    
-    # target = GetInfo(dataset)[0]
-
-    # cols = dataset.columns.tolist()
-    # cols = [c for c in cols if c not in [target]]
-
-    # # X: data atribut dan Y: data kelas/target
-    # X = dataset[cols]
-    # Y = dataset[target]
-
-    # # proses sampling dengan SMOTE
-    # X_smote, Y_smote = sm.fit_resample(X, Y)
-
-    # # data Y setelah dilakukan SMOTE
-    # X_smote[target] = Y_smote
-    
-    # return X_smote
-    return dataset
-
-
-# Fungsi mengecek apakah dataset merupakan kasus binary classification atau bukan
-def BalancingData(dataset, filename):
-    # class target
-    target = GetInfo(dataset)[0]
-    
-    # check unique value
-    valUnique = dataset[target].unique()
-    
-    # total data
-    totalData = len(dataset.index)
-    threshold = 0.3 * totalData
-    
-    if len(valUnique) <= 2:
-        sumData1 = (dataset[target] == valUnique[0]).sum()
-        sumData2 = (dataset[target] == valUnique[1]).sum()
-        
-        if (sumData1 <= threshold) or (sumData2 <= threshold):
-            balanceDataset = SamplingData(dataset)
-            balanceDataset.to_csv(app.config['UPLOAD_FOLDER'] + filename, index=False)
-        else:
-            balanceDataset = dataset
-
-        return balanceDataset
-
-
-# Fungsi pembagian data menjadi data latih dan data uji
-def SplitData(dataset):
-    namaKelas = GetInfo(dataset)[0]
-
-    atribut = dataset.columns.tolist()
-    atribut = [data for data in atribut if data not in namaKelas]
-
-    # X: data atribut dan Y: data kelas/target
-    X = dataset[atribut]
-    y = dataset[namaKelas]
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
-    
-    result = {
-        'X_train': X_train,
-        'X_test': X_test,
-        'y_train': y_train,
-        'y_test': y_test
-    }
-    
-    return result
-
-
-# Fungsi untuk membangun jaringan ANN
-def build_model_extra_args(jumlahInput, hp):
-  
-    # tuning learning rate
-    hp_learning_rate= hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
-
-    # tuning neuron
-    hp_units= hp.Int('units_0', min_value= 32, max_value= 704, step= 32)
-
-    # input layer
-    model= Sequential()
-    model.add(Dense(units= hp_units, input_dim= jumlahInput, activation= 'relu'))
-
-    # Tuning banyaknya hidden layer layer dan neuron tiap layer
-    for i in range(hp.Int('num_layers', 2, 5)):
-        
-        # Tuning jumlah neuron tiap hidden layer
-        hp_units = hp.Int('units_' + str(i), min_value= 32, max_value= 704, step= 32)
-        model.add(Dense(units= hp_units, activation= 'relu'))
-
-        # Tuning dropout tiap hidden layer
-        hp_dropout = hp.Float('rate', min_value= 0.0, max_value= 0.8, step= 0.2)
-        model.add(Dropout(hp_dropout))
-    
-    # Output layer
-    model.add(Dense(1, activation= 'sigmoid'))
-    
-    # compile model
-    model.compile(optimizer= Adam(learning_rate= hp_learning_rate), 
-                  loss= 'binary_crossentropy', metrics= ['accuracy'])
-
-    return model
-
-
-# Get metric performance
-def TunerSearchSummary(trial):
-
-    filePath= app.config['RESULT_SUMMARY'] + '/trial_' + str(trial) + '/trial.json'
-    
-    # open JSON file
-    fileJSON = open(filePath)
-    
-    # load data JSON
-    data = json.load(fileJSON)
-    
-    accuracy = (data['metrics']['metrics']['accuracy']['observations'][0]['value'][0]) * 100
-    val_accuracy = (data['metrics']['metrics']['val_accuracy']['observations'][0]['value'][0]) * 100
-
-    return [accuracy, val_accuracy]
-
-
-def Tuner(dataset):
-    create_model = partial(build_model_extra_args, GetInfo(dataset)[1])
-
-    # define max trials
-    max_trials = 5
-
-    tuner = BayesianOptimization (
-        create_model,
-        objective= 'accuracy',
-        max_trials= max_trials,
-        directory= 'result',
-        project_name= 'bayesian',
-        overwrite= True
-    )
-
-    return [tuner, max_trials]
-
-def EarlyStopper():
-    # inisialisasi Earlystopping untuk menghentikan iterasi ketika tidak terjadi peningkatan akurasi
-    earlystopper = EarlyStopping(
-        monitor = 'val_loss', 
-        min_delta = 0, 
-        patience = 10, 
-        verbose= 1
-    )
-
-    return earlystopper
 
 
 # Fungsi Tuning
@@ -333,6 +192,178 @@ def BuildModel():
         return hasilEvaluasi
 
 
+@app.route('/download')
+def download():
+    return send_file(app.config['RESULT_MODEL'] + 'model.h5', as_attachment=True)
+
+
+# Fungsi untuk mengetahui nama kelas (target) dan jumlah atribut
+def GetInfo(dataset):
+    jumlahAtribut = len(dataset.columns) - 1
+    namaKelas = dataset.columns[jumlahAtribut]
+
+    return [namaKelas, jumlahAtribut]
+
+
+# Fungsi untuk sampling data -> menangani data tidak seimbang
+def SamplingData(dataset):
+    sm =  SMOTEENN(random_state= 42)
+    
+    target = GetInfo(dataset)[0]
+
+    cols = dataset.columns.tolist()
+    cols = [c for c in cols if c not in [target]]
+
+    # X: data atribut dan Y: data kelas/target
+    X = dataset[cols]
+    Y = dataset[target]
+
+    # proses sampling dengan SMOTE
+    dataKosong = int(dataset.isna().sum().sum())
+
+    if dataKosong == 0:
+        X_smote, Y_smote = sm.fit_resample(X, Y)
+        X_smote[target] = Y_smote
+        dataset = X_smote
+    
+    return dataset
+
+# Fungsi mengecek apakah dataset merupakan kasus binary classification atau bukan
+def BalancingData(dataset, filename):
+    # class target
+    target = GetInfo(dataset)[0]
+    
+    # check unique value binar classificaiton -> only 2 value
+    valUnique = dataset[target].unique()
+    
+    # total data
+    totalData = len(dataset.index)
+    threshold = 0.3 * totalData
+    
+    if len(valUnique) <= 2:
+        sumData1 = (dataset[target] == valUnique[0]).sum()
+        sumData2 = (dataset[target] == valUnique[1]).sum()
+        
+        if (sumData1 <= threshold) or (sumData2 <= threshold):
+            balanceDataset = SamplingData(dataset)
+            balanceDataset.to_csv(app.config['UPLOAD_FOLDER'] + filename, index=False)
+        else:
+            balanceDataset = dataset
+
+        return balanceDataset  
+
+
+# Fungsi pembagian data menjadi data latih dan data uji
+def SplitData(dataset):
+    namaKelas = GetInfo(dataset)[0]
+
+    atribut = dataset.columns.tolist()
+    atribut = [data for data in atribut if data not in namaKelas]
+
+    # X: data atribut dan Y: data kelas/target
+    X = dataset[atribut]
+    y = dataset[namaKelas]
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+    
+    result = {
+        'X_train': X_train,
+        'X_test': X_test,
+        'y_train': y_train,
+        'y_test': y_test
+    }
+    
+    return result
+
+
+# Fungsi untuk membangun jaringan ANN
+def build_model_extra_args(jumlahInput, hp):
+  
+    # tuning learning rate
+    hp_learning_rate= hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
+
+    # tuning neuron
+    hp_units= hp.Int('units_0', min_value= 32, max_value= 704, step= 32)
+
+    # input layer
+    model= Sequential()
+    model.add(Dense(units= hp_units, input_dim= jumlahInput, activation= 'relu'))
+
+    # Tuning banyaknya hidden layer layer dan neuron tiap layer
+    for i in range(hp.Int('num_layers', 2, 5)):
+        
+        # Tuning jumlah neuron tiap hidden layer
+        hp_units = hp.Int('units_' + str(i), min_value= 32, max_value= 704, step= 32)
+        model.add(Dense(units= hp_units, activation= 'relu'))
+
+        # Tuning dropout tiap hidden layer
+        hp_dropout = hp.Float('rate', min_value= 0.0, max_value= 0.8, step= 0.2)
+        model.add(Dropout(hp_dropout))
+    
+    # Output layer
+    model.add(Dense(1, activation= 'sigmoid'))
+    
+    # compile model
+    model.compile(optimizer= Adam(learning_rate= hp_learning_rate), 
+                  loss= 'binary_crossentropy', metrics= ['accuracy'])
+
+    return model
+
+
+# Get metric performance
+def TunerSearchSummary(maxTrial):
+
+    bestAccuracy = 0
+    bestValAccuracy = 0
+
+    for trial in range(maxTrial):
+        filePath= app.config['RESULT_SUMMARY'] + '/trial_' + str(trial) + '/trial.json'
+    
+        # open JSON file
+        fileJSON = open(filePath)
+        
+        # load data JSON
+        data = json.load(fileJSON)
+    
+        accuracy = (data['metrics']['metrics']['accuracy']['observations'][0]['value'][0]) * 100
+        val_accuracy = (data['metrics']['metrics']['val_accuracy']['observations'][0]['value'][0]) * 100
+
+        if accuracy > bestAccuracy:
+            bestAccuracy = accuracy
+            bestValAccuracy = val_accuracy
+
+    return [bestAccuracy, bestValAccuracy]
+
+
+def Tuner(dataset):
+    create_model = partial(build_model_extra_args, GetInfo(dataset)[1])
+
+    # define max trials
+    max_trials = 5
+
+    tuner = BayesianOptimization (
+        create_model,
+        objective= 'accuracy',
+        max_trials= max_trials,
+        directory= 'result',
+        project_name= 'bayesian',
+        overwrite= True
+    )
+
+    return [tuner, max_trials]
+
+def EarlyStopper():
+    # inisialisasi Earlystopping untuk menghentikan iterasi ketika tidak terjadi peningkatan akurasi
+    earlystopper = EarlyStopping(
+        monitor = 'val_loss', 
+        min_delta = 0, 
+        patience = 10, 
+        verbose= 1
+    )
+
+    return earlystopper
+
+
 # Fungsi evaluasi model hasil training
 def Evaluasi(model, dataset, history):
 
@@ -368,9 +399,6 @@ def Evaluasi(model, dataset, history):
     
     return result
 
-@app.route('/download')
-def download():
-    return send_file(app.config['RESULT_MODEL'] + 'model.h5', as_attachment=True)
 
 if (__name__ == '__main__'):
     app.run(debug=True)
