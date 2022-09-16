@@ -196,20 +196,24 @@ def CheckDataset():
             # status 1 -> dataset layak/ memenuhi syarat untuk proses tuning
             status = 1
 
+            # inisialisasi dan assign hasil dari cek dataset untuk dikirimkan ke front-end melalui AJAX
+            result = {
+                'jumlah-data-sebelum-sampling': jumlahDataSebelumSampling,
+                'jumlah-data-setelah-sampling': jumlahDataSetelahSampling,
+                'jumlah-atribut':  GetJumlahAtribut(dataset),
+                'status': status
+            }
+
         else:
             # status 0 -> dataset tidak layak/ tidak memenuhi syarat untuk proses tuning
             status = 0 # tidak memenuhi syarat
 
+            # kembalikan listMessage
+            result = {
+                'status': status,
+                'message': listMessage
+            }
 
-        # inisialisasi dan assign hasil dari cek dataset untuk dikirimkan ke front-end melalui AJAX
-        result = {
-            'jumlah-data-sebelum-sampling': jumlahDataSebelumSampling,
-            'jumlah-data-setelah-sampling': jumlahDataSetelahSampling,
-            'jumlah-atribut':  GetJumlahAtribut(dataset),
-            'data-kosong': NumOfMissingValue(dataset),
-            'status': status,
-            'message': listMessage
-        }
             
         return jsonify(result)
 
@@ -382,25 +386,16 @@ def IsAnyMissingValue(dataset):
         return True
 
 
-
-# Fungsi untuk mengetahui banyaknya data kosong pada dataset
-# Output: jumlah data kosong (integer)
-def NumOfMissingValue(dataset):
-    if IsAnyMissingValue(dataset) == True:
-        jumlahDataKosong = int(dataset.isna().sum().sum())
-    else:
-        jumlahDataKosong = 0
-
-    return jumlahDataKosong
-
-
-
 # Fungsi untuk mengecek apakah data pada dataset bertipe numeric semua atau tidak
 # Input: dataset
 # Output: True -> jika ada nilai semuanya numeric; False -> jika ada tipe data lain (e.g. string/date/boolean/etc)
 def IsAllNumeric(dataset):
-    IsNumeric= any(dataset.applymap(np.isreal).all())
-    return IsNumeric
+    dataTypeAllColumn = dataset.applymap(np.isreal).all().tolist()
+    
+    if False in dataTypeAllColumn:
+        return False
+    else:
+        return True
     
 
 

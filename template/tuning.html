@@ -75,9 +75,19 @@
                     <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 20 Mb!
                     </p>
 
-                    <input type="text" id="file-path" class="">
-                    <input type="text" id="file-name" class="">
-                    <input type="text" id="target-class" class="">
+                    <input type="text" id="file-path" class="hide">
+                    <input type="text" id="file-name" class="hide">
+                    <input type="text" id="target-class" class="hide">
+                    <!-- <div class="select">
+                        <select name="format" id="format">
+                           <option selected disabled>Choose a book format</option>
+                           <option value="pdf">PDF</option>
+                           <option value="txt">txt</option>
+                           <option value="epub">ePub</option>
+                           <option value="fb2">fb2</option>
+                           <option value="mobi">mobi</option>
+                        </select>
+                    </div> -->
 
                     <p id="currentFile"></p>
 
@@ -115,7 +125,7 @@
                     <div id="div-choose-target">
                         <table>
                             <tr>
-                                <th colspan="2" class="table-header" id="table-header">Choose Target Class!</th>
+                                <th colspan="2" class="table-header bg-success" id="table-header-choose-target">Choose Target Class!</th>
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
@@ -125,6 +135,10 @@
                                 <td>Target Class</td>
                                 <td id="list-choose-target">
                                 </td>
+                            </tr>
+                            <tr id="warning-choose-target" class="hide">
+                                <td></td>
+                                <td><i class='fa-solid fa-triangle-exclamation text-warning'></i> Please choose your target class first!</td>
                             </tr>
                         </table>
                         <div class="text-center mt-4">
@@ -146,49 +160,72 @@
                     </div>
 
                     <div id="div-check-dataset">
-                        <table>
+                        <table id="table-check-dataset-success" class="hide">
                             <tr>
-                                <th colspan="2" class="table-header" id="table-header">Dataset Information!</th>
+                                <th colspan="2" class="table-header bg-success" id="table-header-check-dataset">Dataset Information!</th>
                             </tr>
-                            <tr class="mt-5">
+                            <tr class="pt-5">
                                 <td width="20%">Execution Time</td>
-                                <td id="check-dataset-execution-time">: 00 minutes 00 seconds</td>
+                                <td id="check-dataset-execution-time-success">: -</td>
                             </tr>
                             <tr>
                                 <td>Dataset Name</td>
-                                <td id="nama-dataset">: -</td>
+                                <td id="nama-dataset-success">: -</td>
                             </tr>
                             <tr>
                                 <td>Num. of Data Before Sampling</td>
-                                <td id="jumlah-data-sebelum-sampling">: -</td>
+                                <td id="jumlah-data-sebelum-sampling-success">: -</td>
                             </tr>
                             <tr>
                                 <td>Num. of Data After Sampling</td>
-                                <td id="jumlah-data-setelah-sampling">: -</td>
+                                <td id="jumlah-data-setelah-sampling-success">: -</td>
                             </tr>
                             <tr>
                                 <td>Number of Attribute</td>
-                                <td id="jumlah-atribut">: -</td>
+                                <td id="jumlah-atribut-success">: -</td>
                             </tr>
                             <tr>
-                                <td>Target Field</td>
-                                <td id="target">: -</td>
-                            </tr>
-                            <tr>
-                                <td>Missing Value</td>
-                                <td id="data-kosong">: -</td>
+                                <td>Target Class</td>
+                                <td id="target-success">: -</td>
                             </tr>
                             <tr>
                                 <td>Dataset Status</td>
-                                <td id="status">:
+                                <td id="status-success">:
 
                                 </td>
+                            </tr>
+                        </table>
+
+                        <table id="table-check-dataset-error" class="hide">
+                            <tr>
+                                <th colspan="2" class="table-header bg-danger text-white" id="table-header-check-dataset">Dataset Information!</th>
+                            </tr>
+                            <tr class="pt-5">
+                                <td width="20%">Execution Time</td>
+                                <td id="check-dataset-execution-time-error">: -</td>
+                            </tr>
+                            <tr>
+                                <td>Dataset Name</td>
+                                <td id="nama-dataset-error">: -</td>
+                            </tr>
+                            <tr>
+                                <td>Target Class</td>
+                                <td id="target-error">: -</td>
+                            </tr>
+                            <tr>
+                                <td>Dataset Status</td>
+                                <td id="status-error">:
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class='fw-bold'>Cause of Error</td>
                             </tr>
                         </table>
                         <div class="text-center mt-4">
                             <button type="button" id="btn-tuning-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Tuning
                                 Hyperparameter</button>
-                            <a href="/tuning" id="btn-try-again" class="btn btn-border text-black bg-outline-success btn-submit mx-3">Try Again</a>
+                            <a href="/upload" id="btn-try-again" class="btn btn-border text-black bg-outline-success btn-submit mx-3">Try Again</a>
                         </div>
                     </div>
                 </div>
@@ -249,7 +286,7 @@
                         </table>
                         <div class="text-center mt-4">
                             <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
-                            <a href="/tuning" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                            <a href="/upload" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset Data</a>
                         </div>
                     </div>
                 </div>
@@ -315,7 +352,7 @@
                             </tr>
                         </table>
                         <div class="text-center mt-4">
-                            <a href="/tuning" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                            <a href="/upload" class="btn btn-border btn-outline-success text-black">Reset Data</a>
                         </div>
                     </div>
                 </div>
