@@ -1,38 +1,12 @@
-# from email import header
-# from fileinput import filename
-# from importlib.resources import path
-# import json
-# import os
-# from unittest.mock import patch
-# import scikeras
-# import keras_tuner
-# import numpy as np
-# import tensorflow as tf
-# import keras_tuner as kt
-# import pandas as pd
-# from keras.callbacks import EarlyStopping
-# from keras_tuner.tuners import BayesianOptimization
-# from tensorflow.keras.optimizers import Adam
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import Dense, Dropout
-# from scikeras.wrappers import KerasClassifier
-# from sklearn.model_selection import train_test_split
-# from imblearn.combine import SMOTEENN
-# from functools import partial
-# from flask import Flask, jsonify, render_template, request, send_from_directory
 import json
-from unittest import result
-import keras_tuner
 import numpy as np
 import os
 import pandas as pd
 import pickle
-import scikeras
 import shutil
 from flask import Flask, jsonify, render_template, request, send_file
 from functools import partial
 from imblearn.combine import SMOTEENN
-from joblib import dump
 from keras.callbacks import EarlyStopping
 from keras_tuner.tuners import BayesianOptimization
 from sklearn.metrics import confusion_matrix
@@ -188,7 +162,7 @@ def CheckDataset():
         if (isAnyMissingValue == False) and (isAllNumeric == True) and (isBinaryClassification == True):
 
             # proses balancing data
-            dataset = SamplingData(dataset, filePath, targetClass)
+            dataset = SamplingData(filePath, targetClass)
 
             # mengetahui jumlah data dalam dataset (setelah sampling)
             jumlahDataSetelahSampling = len(dataset.index)
@@ -227,16 +201,16 @@ def TuningHyperparameter():
     # mengecek apakah ada method POST dari AJAX
     if request.method == 'POST':
 
-        # get informasi yang dikirimkan AJAX berupa nama dataset
-        getData = request.get_data()
-        filePath = getData.decode('utf-8')
+        # get informasi yang dikirimkan AJAX berupa file path dan target class
+        filePath = request.json.get('file_path')
+        targetClass = request.json.get('target_class')
 
         # membaca dataset menggunakan library pandas
         dataset = pd.read_csv(filePath)
 
         # split data
-        X_train = SplitData(dataset)['X_train']
-        y_train = SplitData(dataset)['y_train']
+        X_train = SplitData(dataset, targetClass)['X_train']
+        y_train = SplitData(dataset, targetClass)['y_train']
 
         # membuat konfigurasi jaringan
         create_model = partial(BuildModel, GetJumlahAtribut(dataset))
@@ -281,13 +255,11 @@ def TuningHyperparameter():
 def BuildModel():
     if request.method == 'POST':
 
-        # get data dari AJAX
-        getData = request.get_data()
+        # get informasi yang dikirimkan AJAX berupa file path dan target class
+        filePath = request.json.get('file_path')
+        targetClass = request.json.get('target_class')
 
-        # mengetahui path/lokasi dataset
-        filePath = getData.decode('utf-8')
-
-        # baca dataset berdasarkan path menggunakan library pandas
+        # membaca dataset menggunakan library pandas
         dataset = pd.read_csv(filePath)
 
         # load file tuner
@@ -297,8 +269,8 @@ def BuildModel():
         best_hps = pickle.load(open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "rb"))
 
         # split data
-        X_train = SplitData(dataset)['X_train']
-        y_train = SplitData(dataset)['y_train']
+        X_train = SplitData(dataset, targetClass)['X_train']
+        y_train = SplitData(dataset, targetClass)['y_train']
 
         # fit model menggunakan hasil tuning hyperparameter dan melatihnya
         model = tuner.hypermodel.build(best_hps)
@@ -310,7 +282,7 @@ def BuildModel():
         model.save(app.config['RESULT_MODEL'] + "model.h5")
 
         # hasil evaluasi
-        hasilEvaluasi = Evaluasi(model, dataset, history)
+        hasilEvaluasi = Evaluasi(model, dataset, history, targetClass)
 
         return hasilEvaluasi
 
@@ -334,7 +306,13 @@ def GetJumlahAtribut(dataset):
 
 # Fungsi untuk sampling data -> menangani data tidak seimbang
 # Output: dataset hasil balancing
-def SamplingData(dataset, filePath, targetClass):
+def SamplingData(filePath, targetClass):
+    # get informasi yang dikirimkan AJAX berupa file path dan target class
+    filePath = request.json.get('file_path')
+
+    # membaca dataset menggunakan library pandas
+    dataset = pd.read_csv(filePath)
+
     # menghitung total data
     totalData = len(dataset.index)
 
@@ -358,17 +336,16 @@ def SamplingData(dataset, filePath, targetClass):
         X = dataset[cols]
         Y = dataset[target]
 
-        # jika tidak ada nilai kosong, maka proses sampling bisa dilakukan
-        if not IsAnyMissingValue:
-            sm =  SMOTEENN(random_state= 42)
-            X_smote, Y_smote = sm.fit_resample(X, Y)
+        # sampling data
+        sm =  SMOTEENN(random_state= 42)
+        X_smote, Y_smote = sm.fit_resample(X, Y)
 
-            # menggabungkan kelas atribut dengan kelas target
-            X_smote[target] = Y_smote
-            dataset = X_smote
+        # menggabungkan kelas atribut dengan kelas target
+        X_smote[target] = Y_smote
+        dataset = X_smote
 
-            # replace dataset lama dengan dataset baru hasil sampling
-            dataset.to_csv(filePath, index=False)
+        # replace dataset lama dengan dataset baru hasil sampling
+        dataset.to_csv(filePath, index=False)
 
     return dataset
 
@@ -525,11 +502,11 @@ def TuningResult(maxTrial):
 # Fungsi evaluasi model hasil training
 # Input: file model, dataset, dan history training
 # Output: hasil evaluasi (banyaknya epoch, akurasi, presisi, recall, specificity, dan nilai error)
-def Evaluasi(model, dataset, history):
+def Evaluasi(model, dataset, history, targetClass):
 
     # membagi data menjadi data atribut test dan data target test
-    X_test = SplitData(dataset)['X_test']
-    y_test = SplitData(dataset)['y_test']
+    X_test = SplitData(dataset, targetClass)['X_test']
+    y_test = SplitData(dataset, targetClass)['y_test']
 
     # prediksi menggunakan data test
     y_predict = (model.predict(X_test) > 0.5).astype('int32')

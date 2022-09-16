@@ -179,7 +179,6 @@ Dropzone.options.myAwesomeDropzone = {
 
                     kodeHTMLHeaderTag = '<div class="select"><select name="choose-target" id="select-choose-target"><option selected disabled>Choose Target Class</option>';
 
-                    // loop list kolom
                     $.each(listKolom, function(key, value) {
                         kodeHTMLHeaderTag += '<option value="' + value + '">' + value + '</option>'
                     });
@@ -192,12 +191,10 @@ Dropzone.options.myAwesomeDropzone = {
                     $('#file-path').val(filePath);
                     $('#file-name').val(fileName);
 
-                    console.log('AJAX Berhasil Response');
-                    console.log(response);
-
+                    console.log('AJAX Upload Berhasil Response');
                 },
                 error: function(error) {
-                    console.log("AJAX Gagal Response");
+                    console.log("AJAX Upload Gagal Response");
                     console.log(error);
                 },
                 complete: function() {
@@ -260,12 +257,9 @@ $('#btn-check-dataset').on('click', function(e) {
 
                     DatasetNotAccepted();
                 }
-
-                console.log('AJAX Berhasil Response');
-                console.log(response);
             },
             error: function(error) {
-                console.log("AJAX Gagal Response");
+                console.log("AJAX Cek Dataset Gagal Response");
                 console.log(error);
             },
             complete: function() {
@@ -280,13 +274,17 @@ $('#btn-check-dataset').on('click', function(e) {
 $("#btn-tuning-dataset").click(function(e) {
     e.preventDefault();
 
-    file_path = $('#file-path').val();
+    filePath = $('#file-path').val();
+    targetClass = $('#select-choose-target').val();
+    $('#target-class').val(targetClass);
+
+    data = { file_path: filePath, target_class: targetClass }
 
     // AJAX untuk kirim data dan menerima data kembalian dari app.py
     $.ajax({
         url: '/tuning/process',
         type: 'POST',
-        data: file_path,
+        data: JSON.stringify(data),
         dataType: 'json',
         contentType: "application/json; charset=UTF-8",
         beforeSend: LoadingTuning(1),
@@ -319,7 +317,7 @@ $("#btn-tuning-dataset").click(function(e) {
             $('#val-accuracy').html(': ' + valAccuracy + ' %');
         },
         error: function(error) {
-            console.log("AJAX Gagal Response");
+            console.log("AJAX Tuning Hyperparameter Gagal Response");
             console.log(error);
         },
         complete: function() {
@@ -332,13 +330,17 @@ $("#btn-tuning-dataset").click(function(e) {
 $("#btn-build-model").click(function(e) {
     e.preventDefault();
 
-    file_path = $('#file-path').val();
+    filePath = $('#file-path').val();
+    targetClass = $('#select-choose-target').val();
+    $('#target-class').val(targetClass);
+
+    data = { file_path: filePath, target_class: targetClass }
 
     // AJAX untuk kirim data dan menerima data kembalian dari app.py
     $.ajax({
         url: '/build',
         type: 'POST',
-        data: file_path,
+        data: JSON.stringify(data),
         dataType: 'json',
         contentType: "application/json; charset=UTF-8",
         beforeSend: LoadingBuildModel(1),
@@ -354,12 +356,9 @@ $("#btn-build-model").click(function(e) {
             $('#build-recall').html(': ' + buildRecall + ' %');
             $('#build-specificity').html(': ' + buildSpecificity + ' %');
             $('#build-error').html(': ' + buildError + ' %');
-
-            console.log("AJAX Berhasil Response");
-            console.log(response);
         },
         error: function(error) {
-            console.log("AJAX Gagal Response");
+            console.log("AJAX Build Model Gagal Response");
             console.log(error);
         },
         complete: function() {
@@ -367,21 +366,3 @@ $("#btn-build-model").click(function(e) {
         }
     })
 });
-
-// $("#btn-download").click(function(e) {
-//     e.preventDefault();
-
-//     // AJAX untuk kirim data dan menerima data kembalian dari app.py
-//     $.ajax({
-//         url: '/download',
-//         type: 'POST',
-//         contentType: 'application/download',
-//         success: function(response) {
-//             console.log("AJAX Berhasil Response");
-//         },
-//         error: function(error) {
-//             console.log("AJAX Gagal Response");
-//             console.log(error);
-//         }
-//     })
-// });
