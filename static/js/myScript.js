@@ -66,6 +66,24 @@ function DatasetNotAccepted() {
 // True -> loading (active)
 // False -> finished (passive)
 
+// function ketika memilih kelas target
+function LoadingChooseTarget(status) {
+    $('#btn-upload-dataset').addClass('hide');
+    $('.choose-target').removeClass('hide');
+
+    if (status == 1) {
+        message = TimeExecution(1);
+        $('#loader-choose-target').show();
+        $('#div-choose-target').hide();
+    } else {
+        message = TimeExecution(0);
+        $('#choose-target-execution-time').html(message);
+        $('#loader-choose-target').hide();
+        $('#div-choose-target').show();
+    }
+}
+
+
 // function ketika loading dataset
 function LoadingCheckDataset(status) {
     $('#btn-check-dataset').addClass('hide');
@@ -120,7 +138,7 @@ function LoadingBuildModel(status) {
 
 
 Dropzone.options.myAwesomeDropzone = {
-    url: '/tuning',
+    url: '/upload',
     autoProcessQueue: false,
     parallelUploads: 1,
     maxFilesize: 25, // MB
@@ -130,7 +148,7 @@ Dropzone.options.myAwesomeDropzone = {
         var mydrop = this; // Closure
 
         // This is the event listener that triggers the start of the upload
-        $('#btn-check-dataset').on('click', function() {
+        $('#btn-upload-dataset').on('click', function() {
             mydrop.processQueue();
         });
 
@@ -140,38 +158,33 @@ Dropzone.options.myAwesomeDropzone = {
             if (this.getQueuedFiles().length > 0) {
                 this.processQueue();
             }
+
             $.ajax({
-                url: '/tuning/check',
+                url: '/target',
                 type: 'POST',
                 data: file.name,
                 dataType: 'json',
                 contentType: "application/json; charset=UTF-8",
-                beforeSend: LoadingCheckDataset(1),
+                beforeSend: LoadingChooseTarget(1),
                 success: function(response) {
-                    namaDataset = response['nama-dataset'];
+                    fileName = response['file-name'];
                     filePath = response['file-path'];
-                    jumlahData = response['jumlah-data'];
-                    jumlahAtribut = response['jumlah-atribut'];
-                    target = response['target'];
-                    dataKosong = response['data-kosong'];
-                    statusDataset = response['status']
+                    listKolom = response['list-kolom'];
 
+                    kodeHTMLHeaderTag = '<select class="select-choose-target" name="choose-target" id="select-choose-target"><option value=""></option>'
+
+                    // loop list kolom
+                    $.each(listKolom, function(key, value) {
+                        kodeHTMLHeaderTag += '<option value="' + value + '">' + value + '</option>'
+                    });
+
+                    kodeHTMLFooterTag = '</select>'
+
+                    kodeHTML = kodeHTMLHeaderTag + kodeHTMLFooterTag;
+
+                    $('#list-choose-target').html(': ' + kodeHTML);
                     $('#file-path').val(filePath);
-                    $('#nama-dataset').html(': ' + namaDataset);
-                    $('#jumlah-data').html(': ' + jumlahData + ' Data');
-                    $('#jumlah-atribut').html(': ' + jumlahAtribut + ' Attribute');
-                    $('#target').html(': ' + target);
-                    $('#data-kosong').html(': ' + dataKosong + ' Data');
-
-                    if (statusDataset == 1) {
-                        DatasetAccepted();
-                        kodeHTML = "<span class='badge rounded-pill bg-info fw-bold'><i class='fa-sharp fa-solid fa-circle-check'></i> Yeay, your dataset is qualified to process</span>";
-                    } else {
-                        DatasetNotAccepted();
-                        kodeHTML = "<span class='badge rounded-pill bg-danger fw-bold'><i class='fa-solid fa-circle-xmark'></i> Sorry, your dataset isn't qualified to process</span>";
-                    }
-
-                    $('#status').html(': ' + kodeHTML);
+                    $('#file-name').val(fileName);
 
                     console.log('AJAX Berhasil Response');
                     console.log(response);
@@ -182,13 +195,68 @@ Dropzone.options.myAwesomeDropzone = {
                     console.log(error);
                 },
                 complete: function() {
-                    LoadingCheckDataset(0);
+                    LoadingChooseTarget(0);
                 }
             })
 
         });
     }
 };
+
+
+$('#btn-check-dataset').on('click', function(e) {
+    e.preventDefault();
+
+    fileName = $('#file-name').val();
+    filePath = $('#file-path').val();
+    targetClass = $('#select-choose-target').val();
+    $('#target-class').val(targetClass);
+
+    data = { file_path: filePath, target_class: targetClass }
+
+    $.ajax({
+        url: '/tuning/check',
+        type: 'POST',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: "application/json; charset=UTF-8",
+        beforeSend: LoadingCheckDataset(1),
+        success: function(response) {
+            jumlahDataSebelumSampling = response['jumlah-data-sebelum-sampling'];
+            jumlahDataSetelahSampling = response['jumlah-data-setelah-sampling'];
+            jumlahAtribut = response['jumlah-atribut'];
+            dataKosong = response['data-kosong'];
+            statusDataset = response['status']
+
+            $('#nama-dataset').html(': ' + fileName);
+            $('#jumlah-data-sebelum-sampling').html(': ' + jumlahDataSebelumSampling);
+            $('#jumlah-data-setelah-sampling').html(': ' + jumlahDataSetelahSampling);
+            $('#jumlah-atribut').html(': ' + jumlahAtribut + ' Attribute');
+            $('#target').html(': ' + targetClass);
+            $('#data-kosong').html(': ' + dataKosong + ' Data');
+
+            if (statusDataset == 1) {
+                DatasetAccepted();
+                kodeHTML = "<span class='badge rounded-pill bg-info fw-bold'><i class='fa-sharp fa-solid fa-circle-check'></i> Yeay, your dataset is qualified to process</span>";
+            } else {
+                DatasetNotAccepted();
+                kodeHTML = "<span class='badge rounded-pill bg-danger fw-bold'><i class='fa-solid fa-circle-xmark'></i> Sorry, your dataset isn't qualified to process</span>";
+            }
+
+            $('#status').html(': ' + kodeHTML);
+
+            console.log('AJAX Berhasil Response');
+            console.log(response);
+        },
+        error: function(error) {
+            console.log("AJAX Gagal Response");
+            console.log(error);
+        },
+        complete: function() {
+            LoadingCheckDataset(0);
+        }
+    })
+});
 
 
 // AJAX

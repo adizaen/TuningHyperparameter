@@ -36,6 +36,7 @@
     <link href="static/css/user.css" rel="stylesheet" />
     <link rel="stylesheet" href="static/css/dropzone.min.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css">
+    <!-- <link rel="stylesheet" href="static/css/select2.min.css"> -->
 
 </head>
 
@@ -74,8 +75,9 @@
                     <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 20 Mb!
                     </p>
 
-                    <input type="text" id="file-path" class="hide">
-                    <input type="text" id="best-hyperparameter" class="hide">
+                    <input type="text" id="file-path" class="">
+                    <input type="text" id="file-name" class="">
+                    <input type="text" id="target-class" class="">
 
                     <p id="currentFile"></p>
 
@@ -94,7 +96,40 @@
                     </div>
 
                     <div class="text-center mt-4">
-                        <button type="button" id="btn-check-dataset" class="btn btn-border btn-light text-black bg-success">Upload & Check Dataset</button>
+                        <button type="button" id="btn-upload-dataset" class="btn btn-border btn-light text-black bg-success">Upload Dataset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mx-auto choose-target hide">
+                <div class="card-body">
+                    <h3>Choose Target</h3>
+                    <p class="card-title-desc">Please select the column that you make as the target class. Make sure that the column you choose has only 2 unique values ​​(Binary Classification)</p>
+
+                    <div id="loader-choose-target">
+                        <div class="loader mx-auto mt-5 mb-5"></div>
+                        <p class="text-center execution-time">Execution time: 00 minutes 00 seconds</p>
+                        <p class="text-center">Please wait ...</p>
+                    </div>
+
+                    <div id="div-choose-target">
+                        <table>
+                            <tr>
+                                <th colspan="2" class="table-header" id="table-header">Choose Target Class!</th>
+                            </tr>
+                            <tr class="mt-5">
+                                <td width="20%">Execution Time</td>
+                                <td id="choose-target-execution-time">: 00 minutes 00 seconds</td>
+                            </tr>
+                            <tr>
+                                <td>Target Class</td>
+                                <td id="list-choose-target">
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="text-center mt-4">
+                            <button type="button" id="btn-check-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Check Dataset</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -117,27 +152,31 @@
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
-                                <td id="check-dataset-execution-time">: 9 minutes 15 seconds</td>
+                                <td id="check-dataset-execution-time">: 00 minutes 00 seconds</td>
                             </tr>
                             <tr>
                                 <td>Dataset Name</td>
-                                <td id="nama-dataset">: Dataset</td>
+                                <td id="nama-dataset">: -</td>
                             </tr>
                             <tr>
-                                <td>Number of Data</td>
-                                <td id="jumlah-data">: 2780 Data</td>
+                                <td>Num. of Data Before Sampling</td>
+                                <td id="jumlah-data-sebelum-sampling">: -</td>
+                            </tr>
+                            <tr>
+                                <td>Num. of Data After Sampling</td>
+                                <td id="jumlah-data-setelah-sampling">: -</td>
                             </tr>
                             <tr>
                                 <td>Number of Attribute</td>
-                                <td id="jumlah-atribut">: 21 Attribute</td>
+                                <td id="jumlah-atribut">: -</td>
                             </tr>
                             <tr>
                                 <td>Target Field</td>
-                                <td id="target">: flag_transaksi_fraud</td>
+                                <td id="target">: -</td>
                             </tr>
                             <tr>
                                 <td>Missing Value</td>
-                                <td id="data-kosong">: 0 Data</td>
+                                <td id="data-kosong">: -</td>
                             </tr>
                             <tr>
                                 <td>Dataset Status</td>
@@ -173,39 +212,39 @@
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
-                                <td id="tuning-execution-time">: 9 minutes 15 seconds</td>
+                                <td id="tuning-execution-time">: -</td>
                             </tr>
                             <tr>
                                 <td>Network Configuration</td>
-                                <td id="network-configuration">: 24 - 512 - 64 - 128 - 1</td>
+                                <td id="network-configuration">: -</td>
                             </tr>
                             <tr>
                                 <td>Number of Input Layer</td>
-                                <td id="input-layer">: 1 layer</td>
+                                <td id="input-layer">: -</td>
                             </tr>
                             <tr>
                                 <td>Number of Hidden Layer</td>
-                                <td id="hidden-layer">: 3 layers</td>
+                                <td id="hidden-layer">: -</td>
                             </tr>
                             <tr>
                                 <td>Number of Ouput Layer</td>
-                                <td id="output-layer">: 1 layer</td>
+                                <td id="output-layer">: -</td>
                             </tr>
                             <tr>
                                 <td>Learning Rate</td>
-                                <td id="learning-rate">: 0.001</td>
+                                <td id="learning-rate">: -</td>
                             </tr>
                             <tr>
                                 <td>Dropout Rate</td>
-                                <td id="dropout">: 0.2 rate</td>
+                                <td id="dropout">: -</td>
                             </tr>
                             <tr>
                                 <td>Accuracy</td>
-                                <td id="accuracy">: 0 %</td>
+                                <td id="accuracy">: -</td>
                             </tr>
                             <tr>
                                 <td>Validation Accuracy</td>
-                                <td id="val-accuracy">: 0 %</td>
+                                <td id="val-accuracy">: -</td>
                             </tr>
                         </table>
                         <div class="text-center mt-4">
@@ -308,6 +347,7 @@
     <script src="static/js/jquery.min.js"></script>
     <script src="static/js/script.js"></script>
     <script src="static/js/dropzone.min.js"></script>
+    <!-- <script src="static/js/select2.min.js"></script> -->
     <script src="static/js/myScript.js"></script>
 
 </body>
