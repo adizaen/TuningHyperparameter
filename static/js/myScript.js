@@ -1,7 +1,5 @@
 // General Configuration
-$(document).ready(function() {
-
-});
+$(document).ready(function() {});
 
 function makeTimer(startDate) {
     // var endTime = new Date("29 April 2018 9:56:00 GMT+01:00");	
@@ -291,13 +289,15 @@ $("#btn-tuning-dataset").click(function(e) {
         success: function(response) {
             neuronInputLayer = String(response['unit_input']);
             neuronOutputLayer = "1";
-            hiddenLayer = String(response['num_layers']);
+            hiddenLayer = response['num_layers'];
 
             neuronHiddenLayer = "";
+            listNeuronHiddenLayer = [];
 
-            for (var i = 0; i < response['num_layers']; i++) {
+            for (var i = 0; i < hiddenLayer; i++) {
                 dataUnit = 'units_' + String(i);
                 dataNeuron = String(response[dataUnit]);
+                listNeuronHiddenLayer.push(dataNeuron);
                 neuronHiddenLayer = neuronHiddenLayer + dataNeuron + " - ";
             }
 
@@ -309,12 +309,14 @@ $("#btn-tuning-dataset").click(function(e) {
 
             $('#network-configuration').html(': ' + configuration);
             $('#input-layer').html(': 1 Layer');
-            $('#hidden-layer').html(': ' + hiddenLayer + ' Layers');
+            $('#hidden-layer').html(': ' + String(hiddenLayer) + ' Layers');
             $('#output-layer').html(': 1 Layer');
             $('#learning-rate').html(': ' + learningRate);
             $('#dropout').html(': ' + dropout + ' Rate');
             $('#accuracy').html(': ' + accuracy + ' %');
             $('#val-accuracy').html(': ' + valAccuracy + ' %');
+
+            HyperparameterCopyToUser(neuronInputLayer, hiddenLayer, listNeuronHiddenLayer, learningRate, 0, dropout);
         },
         error: function(error) {
             console.log("AJAX Tuning Hyperparameter Gagal Response");
@@ -366,3 +368,23 @@ $("#btn-build-model").click(function(e) {
         }
     })
 });
+
+function HyperparameterCopyToUser(neuronInputLayer, numOfHiddenLayer, listNeuronHiddenLayer, learningRate, batchSize, dropout) {
+    headerHTML = "<code class='language-py'># Import project library \nfrom keras.callbacks import EarlyStopping \nfrom keras.layers import Dense, Dropout, Flatten \nfrom keras.models import Sequential \nfrom tensorflow.keras.optimizers import Adam \n\n";
+    bodyHTML = "def BuildModel() \n\t# structure of ANN network \n\tmodel = Sequential() \n";
+
+    for (var i = 0; i < numOfHiddenLayer; i++) {
+        if (i == 0) {
+            bodyHTML += "\tmodel.add(Dense(" + listNeuronHiddenLayer[i] + ", input_dim = " + neuronInputLayer + ", activation = 'relu')) \n\tmodel.add(Dropout(" + dropout + "))\n";
+        } else {
+            bodyHTML += "\tmodel.add(Dense(" + listNeuronHiddenLayer[i] + ", activation = 'relu')) \n\tmodel.add(Dropout(" + dropout + "))\n";
+        }
+    }
+
+    bodyHTML += "\tmodel.add(Dense(1, activation = 'sigmoid'))\n\n";
+
+    footerHTML = "\toptimizer = Adam(learning_rate = " + learningRate.toString() + ") \n\tmodel.compile(optimizer = optimizer, loss = 'binary_crossentropy', metrics = ['accuracy']) \n\n\t# Instance of class EarlyStopping() \n\t# Interupt running epoch when training performance not getting better \n\tearlystopper = EarlyStopping(monitor = 'val_loss', min_delta = 0, patience = 15, verbose = 1 ) \n\n\t# fit network to adjust weight on ANN network \n\tmodel.fit(X_train.values, y_train.values, epochs = 500, batch_size = " + batchSize.toString() + ", validation_split = 0.20, verbose = 0, callbacks = [earlystopper]) \n\n\treturn model </code>";
+
+    $('#kode-python').html(headerHTML + bodyHTML + footerHTML);
+    Prism.highlightAll();
+}

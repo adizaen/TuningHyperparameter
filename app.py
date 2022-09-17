@@ -36,7 +36,6 @@ app.config['RESULT_FILE_TUNING'] = 'result/hyperparameter/'
 app.config['RESULT_MODEL'] = 'result/model/'
 
 
-
 # membuat folder di dalam server berdasarkan path yang dikirimkan
 def CreateDirectory(path):
     dir = path
@@ -44,7 +43,6 @@ def CreateDirectory(path):
         shutil.rmtree(dir)
 
     os.makedirs(dir)
-
 
 
 # route untuk menampilkan halaman awal (index.html) -> HOME
@@ -65,7 +63,6 @@ def Home():
     return render_template('index.html')
 
 
-
 # route untuk upload dataset dan membuka halaman tuning
 @app.route('/upload', methods=['GET', 'POST'])
 def Upload():
@@ -75,12 +72,12 @@ def Upload():
         # mengecek apakah ada file yang dikirimkan melalui AJAX
         if request.files:
             fileDataset = request.files['file']
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], fileDataset.filename)
+            file_path = os.path.join(
+                app.config['UPLOAD_FOLDER'], fileDataset.filename)
             fileDataset.save(file_path)
 
     # menampilkan file tuning.html
     return render_template('tuning.html')
-
 
 
 # Fungsi untuk menampilkan semua kolom pada dataset. User diminta memilih kelas target
@@ -110,7 +107,6 @@ def ChooseTargetClass():
         }
 
         return jsonify(result)
-
 
 
 # route untuk mengecek dataset sebelum proses tuning hyperparameter
@@ -155,7 +151,6 @@ def CheckDataset():
             message = 'The target class you choose is not a case of binary classification'
             listMessage.append(message)
 
-
         # proses lakukan balancing data ketika 3 hal di atas terpenuhi
         # jika ada 1 hal yang tidak terpenuhi, proses tidak bisa berlanjut
 
@@ -180,7 +175,7 @@ def CheckDataset():
 
         else:
             # status 0 -> dataset tidak layak/ tidak memenuhi syarat untuk proses tuning
-            status = 0 # tidak memenuhi syarat
+            status = 0  # tidak memenuhi syarat
 
             # kembalikan listMessage
             result = {
@@ -188,9 +183,7 @@ def CheckDataset():
                 'message': listMessage
             }
 
-            
         return jsonify(result)
-
 
 
 # Fungsi utama untuk proses Tuning Hyperparameter
@@ -207,38 +200,42 @@ def TuningHyperparameter():
 
         # membaca dataset menggunakan library pandas
         dataset = pd.read_csv(filePath)
+        jumlahAtribut = GetJumlahAtribut(dataset)
 
         # split data
         X_train = SplitData(dataset, targetClass)['X_train']
         y_train = SplitData(dataset, targetClass)['y_train']
 
         # membuat konfigurasi jaringan
-        create_model = partial(BuildModel, GetJumlahAtribut(dataset))
+        create_model = partial(CreateModel, GetJumlahAtribut(dataset))
 
         # set maksimal percobaan sebanyak 5 kali
         max_trials = 5
 
         # konfigurasi tuner menggunakan bayesian
-        tuner = BayesianOptimization (
+        tuner = BayesianOptimization(
             create_model,
-            objective= 'accuracy',
-            max_trials= max_trials,
-            directory= 'result',
-            project_name= 'bayesian',
-            overwrite= True
+            objective='accuracy',
+            max_trials=max_trials,
+            directory='result',
+            project_name='bayesian',
+            overwrite=True
         )
 
         # proses tuning
-        tuner.search(X_train, y_train, epochs = 300, validation_split = 0.2, callbacks = [EarlyStopper()])
+        tuner.search(X_train, y_train, epochs=300,
+                     validation_split=0.2, callbacks=[EarlyStopper()])
 
         # print hyperparameter paling optimal
-        best_hps = tuner.get_best_hyperparameters(num_trials = 1)[0]
+        best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
 
         # simpan file tuner
-        pickle.dump(tuner, open(app.config['RESULT_FILE_TUNING'] + 'tuner.pkl', "wb"))
+        pickle.dump(tuner, open(
+            app.config['RESULT_FILE_TUNING'] + 'tuner.pkl', "wb"))
 
         # save best hyperparameter
-        pickle.dump(best_hps, open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "wb"))
+        pickle.dump(best_hps, open(
+            app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "wb"))
 
         best_hps_values = best_hps.values
         best_hps_values['unit_input'] = GetJumlahAtribut(dataset)
@@ -263,10 +260,12 @@ def BuildModel():
         dataset = pd.read_csv(filePath)
 
         # load file tuner
-        tuner = pickle.load(open(app.config['RESULT_FILE_TUNING'] + 'tuner.pkl', "rb"))
+        tuner = pickle.load(
+            open(app.config['RESULT_FILE_TUNING'] + 'tuner.pkl', "rb"))
 
         # load best hyperparameter
-        best_hps = pickle.load(open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "rb"))
+        best_hps = pickle.load(
+            open(app.config['RESULT_BEST_HPS'] + 'hyperparameter.pkl', "rb"))
 
         # split data
         X_train = SplitData(dataset, targetClass)['X_train']
@@ -276,8 +275,9 @@ def BuildModel():
         model = tuner.hypermodel.build(best_hps)
 
         # mencatat riwayat hasil training selama proses training berlangsung
-        history = model.fit(X_train, y_train, epochs= 500, validation_split= 0.2, callbacks= [EarlyStopper()])
-        
+        history = model.fit(X_train, y_train, epochs=500,
+                            validation_split=0.2, callbacks=[EarlyStopper()])
+
         # save model
         model.save(app.config['RESULT_MODEL'] + "model.h5")
 
@@ -291,8 +291,7 @@ def BuildModel():
 # Output: file model.h5 yang bisa di download user
 @app.route('/download')
 def download():
-    return send_file(app.config['RESULT_MODEL'] + 'model.h5', as_attachment = True)
-
+    return send_file(app.config['RESULT_MODEL'] + 'model.h5', as_attachment=True)
 
 
 # Fungsi untuk mengetahui jumlah kolom atribut
@@ -301,7 +300,6 @@ def download():
 def GetJumlahAtribut(dataset):
     jumlahAtribut = len(dataset.columns) - 1
     return jumlahAtribut
-
 
 
 # Fungsi untuk sampling data -> menangani data tidak seimbang
@@ -337,7 +335,7 @@ def SamplingData(filePath, targetClass):
         Y = dataset[target]
 
         # sampling data
-        sm =  SMOTEENN(random_state= 42)
+        sm = SMOTEENN(random_state=42)
         X_smote, Y_smote = sm.fit_resample(X, Y)
 
         # menggabungkan kelas atribut dengan kelas target
@@ -348,7 +346,6 @@ def SamplingData(filePath, targetClass):
         dataset.to_csv(filePath, index=False)
 
     return dataset
-
 
 
 # Fungsi untuk mengecek apakah ada data kosong pada dataset
@@ -368,12 +365,11 @@ def IsAnyMissingValue(dataset):
 # Output: True -> jika ada nilai semuanya numeric; False -> jika ada tipe data lain (e.g. string/date/boolean/etc)
 def IsAllNumeric(dataset):
     dataTypeAllColumn = dataset.applymap(np.isreal).all().tolist()
-    
+
     if False in dataTypeAllColumn:
         return False
     else:
         return True
-    
 
 
 # Fungsi mengecek apakah dataset merupakan kasus binary classification atau bukan
@@ -381,7 +377,7 @@ def IsAllNumeric(dataset):
 def IsBinaryClassification(dataset, targetClass):
     # mengambil kelas target
     target = targetClass
-    
+
     # cek data unik pada kelas target
     # jika hanya ada 2 value unik, maka binary classification
     valUnique = dataset[target].unique()
@@ -391,7 +387,6 @@ def IsBinaryClassification(dataset, targetClass):
         return True
     else:
         return False
-
 
 
 # Fungsi pembagian data menjadi data latih dan data uji
@@ -407,70 +402,69 @@ def SplitData(dataset, targetClass):
     y = dataset[target]
 
     # dataset dibagi menjadi 80% data uji dan 20% data latih
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
-    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42)
+
     result = {
         'X_train': X_train,
         'X_test': X_test,
         'y_train': y_train,
         'y_test': y_test
     }
-    
-    return result
 
+    return result
 
 
 # Fungsi untuk membangun jaringan ANN
 # Output: model hasil tuning
-def BuildModel(jumlahInput, hp):
-  
+def CreateModel(jumlahInput, hp):
+
     # tuning learning rate
-    hp_learning_rate= hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
+    hp_learning_rate = hp.Choice('learning_rate', values=[1e-1, 1e-2, 1e-3])
 
     # tuning neuron
-    hp_units= hp.Int('units_0', min_value= 32, max_value= 704, step= 32)
+    hp_units = hp.Int('units_0', min_value=32, max_value=704, step=32)
 
     # input layer
-    model= Sequential()
-    model.add(Dense(units= hp_units, input_dim= jumlahInput, activation= 'relu'))
+    model = Sequential()
+    model.add(Dense(units=hp_units, input_dim=jumlahInput, activation='relu'))
 
     # Tuning banyaknya hidden layer layer dan neuron tiap layer
     for i in range(hp.Int('num_layers', 2, 5)):
-        
+
         # Tuning jumlah neuron tiap hidden layer
-        hp_units = hp.Int('units_' + str(i), min_value= 32, max_value= 704, step= 32)
-        model.add(Dense(units= hp_units, activation= 'relu'))
+        hp_units = hp.Int('units_' + str(i), min_value=32,
+                          max_value=704, step=32)
+        model.add(Dense(units=hp_units, activation='relu'))
 
         # Tuning dropout tiap hidden layer
-        hp_dropout = hp.Float('rate', min_value= 0.0, max_value= 0.8, step= 0.2)
+        hp_dropout = hp.Float('rate', min_value=0.0, max_value=0.8, step=0.2)
         model.add(Dropout(hp_dropout))
-    
+
     # Output layer
-    model.add(Dense(1, activation= 'sigmoid'))
-    
+    model.add(Dense(1, activation='sigmoid'))
+
     # compile model
-    model.compile(optimizer= Adam(learning_rate= hp_learning_rate), 
-                  loss= 'binary_crossentropy', metrics= ['accuracy'])
+    model.compile(optimizer=Adam(learning_rate=hp_learning_rate),
+                  loss='binary_crossentropy', metrics=['accuracy'])
 
     return model
-
 
 
 # Fungsi untuk menghentikan proses iterasi pada TuningHyperparameter() ketika tidak terjadi peningkatan akurasi
 # Output: fungsi earlystopper
 def EarlyStopper():
     earlystopper = EarlyStopping(
-        monitor = 'val_loss', 
-        min_delta = 0, 
-        patience = 10, 
-        verbose= 1
+        monitor='val_loss',
+        min_delta=0,
+        patience=10,
+        verbose=1
     )
 
     return earlystopper
 
 
-
-# Fungsi untuk mengetahui akurais dan val akurasi saat proses tuning
+# Fungsi untuk mengetahui akurasi dan val akurasi saat proses tuning
 # Output: n1ilai akurasi dan val akurasi
 def TuningResult(maxTrial):
 
@@ -480,23 +474,25 @@ def TuningResult(maxTrial):
 
     # proses loop sebanyak max trial yaitu 5 untuk mencari nilai akurasi dan val akurasi terbaik
     for trial in range(maxTrial):
-        filePath= app.config['RESULT_SUMMARY'] + '/trial_' + str(trial) + '/trial.json'
-    
+        filePath = app.config['RESULT_SUMMARY'] + \
+            '/trial_' + str(trial) + '/trial.json'
+
         # open JSON file
         fileJSON = open(filePath)
-        
+
         # load data JSON
         data = json.load(fileJSON)
-    
-        accuracy = (data['metrics']['metrics']['accuracy']['observations'][0]['value'][0]) * 100
-        val_accuracy = (data['metrics']['metrics']['val_accuracy']['observations'][0]['value'][0]) * 100
+
+        accuracy = (data['metrics']['metrics']['accuracy']
+                    ['observations'][0]['value'][0]) * 100
+        val_accuracy = (data['metrics']['metrics']['val_accuracy']
+                        ['observations'][0]['value'][0]) * 100
 
         if accuracy > bestAccuracy:
             bestAccuracy = accuracy
             bestValAccuracy = val_accuracy
 
     return [bestAccuracy, bestValAccuracy]
-
 
 
 # Fungsi evaluasi model hasil training
@@ -534,7 +530,7 @@ def Evaluasi(model, dataset, history, targetClass):
         'specificity': specificity,
         'error': error
     }
-    
+
     return result
 
 

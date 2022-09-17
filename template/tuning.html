@@ -35,8 +35,8 @@
     <link href="static/css/theme.css" rel="stylesheet" />
     <link href="static/css/user.css" rel="stylesheet" />
     <link rel="stylesheet" href="static/css/dropzone.min.css" type="text/css" />
+    <link rel="stylesheet" href="static/css/prism.css">
     <link rel="stylesheet" href="static/css/style.css">
-    <!-- <link rel="stylesheet" href="static/css/select2.min.css"> -->
 
 </head>
 
@@ -58,6 +58,7 @@
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="/#about-us">About
                                 Us</a></li>
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="/#constraint">Constraints</a></li>
+                        </li>
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="/#hyperparameter">Hyperparameter</a></li>
                         <li class="nav-item"><a class="nav-link" aria-current="page" href="/#faq">FAQ</a></li>
                         <li class="nav-item mt-2 mt-lg-0"><a class="nav-link btn btn-light text-black w-md-25 w-50 w-lg-100 bg-success" aria-current="page" href="#">Tuning</a></li>
@@ -72,22 +73,12 @@
                 <div class="card-body">
 
                     <h3>Dropzone</h3>
-                    <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 20 Mb!
+                    <p class="card-title-desc">Upload your dataset here. Only support for .csv file with max size is 25 Mb!
                     </p>
 
                     <input type="text" id="file-path" class="hide">
                     <input type="text" id="file-name" class="hide">
                     <input type="text" id="target-class" class="hide">
-                    <!-- <div class="select">
-                        <select name="format" id="format">
-                           <option selected disabled>Choose a book format</option>
-                           <option value="pdf">PDF</option>
-                           <option value="txt">txt</option>
-                           <option value="epub">ePub</option>
-                           <option value="fb2">fb2</option>
-                           <option value="mobi">mobi</option>
-                        </select>
-                    </div> -->
 
                     <p id="currentFile"></p>
 
@@ -125,7 +116,8 @@
                     <div id="div-choose-target">
                         <table>
                             <tr>
-                                <th colspan="2" class="table-header bg-success" id="table-header-choose-target">Choose Target Class!</th>
+                                <th colspan="2" class="table-header bg-success" id="table-header-choose-target">
+                                    Choose Target Class!</th>
                             </tr>
                             <tr class="mt-5">
                                 <td width="20%">Execution Time</td>
@@ -142,7 +134,8 @@
                             </tr>
                         </table>
                         <div class="text-center mt-4">
-                            <button type="button" id="btn-check-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Check Dataset</button>
+                            <button type="button" id="btn-check-dataset" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Check
+                                Dataset</button>
                         </div>
                     </div>
                 </div>
@@ -162,7 +155,8 @@
                     <div id="div-check-dataset">
                         <table id="table-check-dataset-success" class="hide">
                             <tr>
-                                <th colspan="2" class="table-header bg-success" id="table-header-check-dataset">Dataset Information!</th>
+                                <th colspan="2" class="table-header bg-success" id="table-header-check-dataset">
+                                    Dataset Information!</th>
                             </tr>
                             <tr class="pt-5">
                                 <td width="20%">Execution Time</td>
@@ -284,8 +278,12 @@
                                 <td id="val-accuracy">: -</td>
                             </tr>
                         </table>
+                        <pre id="kode-python">
+                        
+                        </pre>
                         <div class="text-center mt-4">
-                            <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build Model</button>
+                            <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build
+                                Model</button>
                             <a href="/upload" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset Data</a>
                         </div>
                     </div>
@@ -334,8 +332,8 @@
                             </tr>
                             <tr>
                                 <td>Your Model</td>
-                                <td>: <a href="{{ url_for('.download') }}" id="btn-download" class="btn text-white btn-info btn-sm"><i
-                                            class="fa-solid fa-download"></i> Download Here</a></td>
+                                <td>: <a href="{{ url_for( '.download') }}" id="btn-download" class="btn text-white btn-info btn-sm"><i class="fa-solid fa-download"></i>
+                                        Download Here</a></td>
                             </tr>
                             <tr class="margin-top">
                                 <th colspan="2" class="table-header bg-success">How to use your model?</th>
@@ -344,9 +342,12 @@
                                 <td colspan="2">
                                     <ol class="manual-list">
                                         <li>Install library Tensorflow <strong>pip install tensorflow</strong></li>
-                                        <li>Import tensorflow library into your project <strong>from tensorflow.keras.models import load_model</strong></li>
-                                        <li>Load your model and assign it into a variable e.g. variable with name model <strong>model = load_model('model.h5')</strong></li>
-                                        <li>Use this variable to predict new data on your project using <strong>predict</strong> function. Good Luck!</li>
+                                        <li>Import tensorflow library into your project <strong>from
+                                                tensorflow.keras.models import load_model</strong></li>
+                                        <li>Load your model and assign it into a variable e.g. variable with name model
+                                            <strong>model = load_model('model.h5')</strong></li>
+                                        <li>Use this variable to predict new data on your project using
+                                            <strong>predict</strong> function. Good Luck!</li>
                                     </ol>
                                 </td>
                             </tr>
@@ -384,8 +385,8 @@
     <script src="static/js/jquery.min.js"></script>
     <script src="static/js/script.js"></script>
     <script src="static/js/dropzone.min.js"></script>
-    <!-- <script src="static/js/select2.min.js"></script> -->
     <script src="static/js/myScript.js"></script>
+    <script src="static/js/prism.js"></script>
 
 </body>
 
