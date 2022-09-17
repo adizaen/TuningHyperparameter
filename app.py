@@ -207,7 +207,7 @@ def TuningHyperparameter():
         y_train = SplitData(dataset, targetClass)['y_train']
 
         # membuat konfigurasi jaringan
-        create_model = partial(CreateModel, GetJumlahAtribut(dataset))
+        create_model = partial(CreateModel, jumlahAtribut)
 
         # set maksimal percobaan sebanyak 5 kali
         max_trials = 5
