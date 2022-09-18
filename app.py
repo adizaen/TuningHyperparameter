@@ -7,7 +7,7 @@ import shutil
 from flask import Flask, jsonify, render_template, request, send_file
 from functools import partial
 from imblearn.combine import SMOTEENN
-from keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
 from keras_tuner.tuners import BayesianOptimization
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split

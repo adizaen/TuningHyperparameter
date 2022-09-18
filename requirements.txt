@@ -5,7 +5,6 @@ scikeras
 keras_tuner
 numpy
 tensorflow-cpu
-keras
 sklearn
 imblearn
 pandas
