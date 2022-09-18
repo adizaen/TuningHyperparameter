@@ -9,22 +9,3 @@ keras
 sklearn
 imblearn
 pandas
-
-
-# flask
-# gunicorn
-# pillow
-# scikeras
-# keras_tuner
-# numpy
-# tensorflow-gpu
-# keras_tuner
-# keras.callbacks
-# keras_tuner.tuners
-# tensorflow.keras.optimizers
-# tensorflow.keras.models
-# tensorflow.keras.layers
-# scikeras.wrappers
-# sklearn.model_selection
-# imblearn.combine
-# flask_session
