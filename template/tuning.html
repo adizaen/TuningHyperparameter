@@ -277,14 +277,18 @@
                                 <td>Validation Accuracy</td>
                                 <td id="val-accuracy">: -</td>
                             </tr>
+                            <tr>
+                                <td colspan="2" class="fw-bold">Network Configuration Code. You can copy it into your project!</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"><pre id="kode-python"></pre></td>
+                            </tr>
                         </table>
-                        <pre id="kode-python">
-                        
-                        </pre>
                         <div class="text-center mt-4">
                             <button type="button" id="btn-build-model" class="btn btn-border btn-light text-black bg-success btn-submit mx-3">Build
                                 Model</button>
-                            <a href="/upload" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset Data</a>
+                            <a href="/upload" id="btn-reset" class="btn btn-border btn-outline-success text-black">Reset
+                                Data</a>
                         </div>
                     </div>
                 </div>
@@ -335,26 +339,77 @@
                                 <td>: <a href="{{ url_for( '.download') }}" id="btn-download" class="btn text-white btn-info btn-sm"><i class="fa-solid fa-download"></i>
                                         Download Here</a></td>
                             </tr>
-                            <tr class="margin-top">
-                                <th colspan="2" class="table-header bg-success">How to use your model?</th>
-                            </tr>
                             <tr>
-                                <td colspan="2">
-                                    <ol class="manual-list">
-                                        <li>Install library Tensorflow <strong>pip install tensorflow</strong></li>
-                                        <li>Import tensorflow library into your project <strong>from
-                                                tensorflow.keras.models import load_model</strong></li>
-                                        <li>Load your model and assign it into a variable e.g. variable with name model
-                                            <strong>model = load_model('model.h5')</strong></li>
-                                        <li>Use this variable to predict new data on your project using
-                                            <strong>predict</strong> function. Good Luck!</li>
-                                    </ol>
-                                </td>
+                                <td colspan="2">How to use your model? Click <a href="#card-manual">this tutorial</a></td>
                             </tr>
                         </table>
                         <div class="text-center mt-4">
                             <a href="/upload" class="btn btn-border btn-outline-success text-black">Done</a>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mx-auto manual hide" id="card-manual">
+                <div class="card-body">
+                    <h3>How to Use Your Model?</h3>
+                    <p class="card-title-desc">Follow the steps below to embed the model into your binary classification project</p>
+
+                    <div id="div-manual">
+                        <table>
+                            <tr>
+                                <th colspan="2" class="table-header bg-success">Model Usage Instructions</th>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">1.</td>
+                                <td>Download your model with default name <strong>model.h5</strong>.</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">2.</td>
+                                <td>
+                                    Install <strong>Pandas</strong> and <strong>Tensorflow</strong> libraries on your computer using <strong>pip</strong> command.
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>pip install pandas</code></pre>
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>pip install tensorflow</code></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">3.</td>
+                                <td>
+                                    Import <strong>Pandas</strong> and <strong>Tensorflow</strong> libraries into your project.
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>import pandas as pd</code></pre>
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>from tensorflow.keras.models import load_model</code></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">4.</td>
+                                <td>Prepare your data in Pandas DataFrame data type. If your data is a list data type, convert it to a Pandas DataFrame data type. <a href="https://www.geeksforgeeks.org/create-a-pandas-dataframe-from-lists/" target="_blank">Click Here</a>                                    to see the tutorial.</td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">5.</td>
+                                <td>
+                                    Load model using <strong>load_model</strong> function from Tensorflow.
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>model = load_model('model.h5')</code></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">6.</td>
+                                <td>
+                                    For example, the name of your DataFrame is <strong>dataPredict</strong> in step 4. Predict new data using <strong>predict()</strong> function and assign to a new variable named result.
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>result = model.predict(dataPredict)</code></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">7.</td>
+                                <td>
+                                    The predicted data type is numpy.ndarray So you have to specify to get the final result.
+                                    <pre class="w-auto" style="width: fit-content;"><code class='language-py'>result = round(result[0][0])</code></pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: text-top;">8.</td>
+                                <td>Good Luck!</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>

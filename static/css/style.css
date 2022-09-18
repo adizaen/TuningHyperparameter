@@ -452,6 +452,7 @@ select::-ms-expand {
     background: #0A2640;
     overflow: hidden;
     border-radius: .10em;
+    color: white;
 }
 
 .select::after {
@@ -460,6 +461,7 @@ select::-ms-expand {
     top: 0;
     right: 0;
     padding: 0 1em;
+    color: white;
     background: #2b2e2e;
     cursor: pointer;
     pointer-events: none;
@@ -472,4 +474,9 @@ select::-ms-expand {
 
 .token.operator {
     background-color: transparent;
+}
+
+pre {
+    overflow: auto;
+    max-height: 30em;
 }

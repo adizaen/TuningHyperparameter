@@ -109,6 +109,7 @@ def ChooseTargetClass():
         return jsonify(result)
 
 
+
 # route untuk mengecek dataset sebelum proses tuning hyperparameter
 # cek dataset meliputi 3 kriteria yaitu:
 # 1. IsAnyMissingValue() -> mengecek apakah ada data kosong? -> harus bernilai FALSE
@@ -127,9 +128,7 @@ def CheckDataset():
 
         # membaca dataset menggunakan library pandas
         dataset = pd.read_csv(filePath)
-
-        # mengetahui jumlah data dalam dataset (sebelum sampling)
-        jumlahDataSebelumSampling = len(dataset.index)
+        dataset = LimitDataset(dataset)
 
         # lakukan cek dataset meliputi 3 hal
         isAnyMissingValue = IsAnyMissingValue(dataset)
@@ -155,6 +154,9 @@ def CheckDataset():
         # jika ada 1 hal yang tidak terpenuhi, proses tidak bisa berlanjut
 
         if (isAnyMissingValue == False) and (isAllNumeric == True) and (isBinaryClassification == True):
+
+            # mengetahui jumlah data dalam dataset (sebelum sampling)
+            jumlahDataSebelumSampling = len(dataset.index)
 
             # proses balancing data
             dataset = SamplingData(filePath, targetClass)
@@ -413,6 +415,23 @@ def SplitData(dataset, targetClass):
     }
 
     return result
+
+
+
+# Limit data for reduce execution time
+def LimitDataset(dataset):
+    jumlahAtribut = GetJumlahAtribut(dataset)
+    jumlahBaris = len(dataset.index)
+    totalData = jumlahAtribut * jumlahBaris
+
+    limitData = 600000
+    percentageOfLimitData = limitData/totalData
+
+    if totalData > limitData:
+        dataset = dataset.sample(frac = percentageOfLimitData)
+
+    return dataset
+
 
 
 # Fungsi untuk membangun jaringan ANN

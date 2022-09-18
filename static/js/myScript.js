@@ -1,5 +1,7 @@
 // General Configuration
-$(document).ready(function() {});
+$(document).ready(function() {
+    Prism.highlightAll();
+});
 
 function makeTimer(startDate) {
     // var endTime = new Date("29 April 2018 9:56:00 GMT+01:00");	
@@ -137,6 +139,7 @@ function LoadingBuildModel(status) {
         $('#build-execution-time').html(message);
         $('#loader-build-model').hide();
         $('#div-build-model').show();
+        $('#card-manual').removeClass('hide');
     }
 }
 
@@ -316,7 +319,7 @@ $("#btn-tuning-dataset").click(function(e) {
             $('#accuracy').html(': ' + accuracy + ' %');
             $('#val-accuracy').html(': ' + valAccuracy + ' %');
 
-            HyperparameterCopyToUser(neuronInputLayer, hiddenLayer, listNeuronHiddenLayer, learningRate, 0, dropout);
+            HyperparameterCopyToUser(neuronInputLayer, hiddenLayer, listNeuronHiddenLayer, learningRate, 32, dropout);
         },
         error: function(error) {
             console.log("AJAX Tuning Hyperparameter Gagal Response");
