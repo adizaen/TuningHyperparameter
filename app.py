@@ -286,6 +286,9 @@ def BuildModel():
         # hasil evaluasi
         hasilEvaluasi = Evaluasi(model, dataset, history, targetClass)
 
+        # hapus dataset
+        os.remove(filePath)
+
         return hasilEvaluasi
 
 
