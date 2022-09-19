@@ -1,5 +1,8 @@
 # Smart Tune
 
+## Logo
+![](static/img/Logo.png)
+
 ## Tentang Smart Tune
 Smart Tune merupakan sebuah aplikasi berbasis web (web based application) yang digunakan untuk melakukan tuning hyperparameter pada algoritme Artificial Neural Network (ANN) dalam kasus binary classification. Smart Tune akan memberikan konfigurasi jaringan yang optimal menggunakan algortime Bayesian Optimization sehingga user dapat mengadopsi kode Python yang Smart Tune hasilkan untuk diterapkan pada project user. Selain itu, Smart Tune juga dilengkapi dengan fitur build model yang memungkinkan membuild model setelah proses tuning dijalankan. 
 
